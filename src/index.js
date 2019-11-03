@@ -5,9 +5,12 @@ import ArrowRect from './arrow_rect';
 import Arrow from './arrow';
 import Popup from './popup';
 import Marker from './marker';
+import Task from './task';
+import Milestone from './milestone';
 
 import './gantt.scss';
 
+//  https://www.wrike.com/gantt-chart/
 export default class Gantt {
     constructor(wrapper, tasks, options) {
         this.setup_wrapper(wrapper);
@@ -150,8 +153,7 @@ export default class Gantt {
             if (!task.id) {
                 task.id = generate_id(task);
             }
-
-            return task;
+            return new Task(this, task);
         });
 
         this.setup_dependencies();
@@ -585,10 +587,17 @@ export default class Gantt {
 
     make_bars() {
         this.bars = this.tasks.map(task => {
-            const bar = new Bar(this, task);
-            this.layers.bar.appendChild(bar.group);
-            return bar;
+            if (task.type === 'task') {
+                const bar = new Bar(this, task);
+                this.layers.bar.appendChild(bar.group);
+                return bar;
+            } else if (task.type === 'milestone') {
+                const bar = new Milestone(this, task);
+                this.layers.bar.appendChild(bar.group);
+                return bar;
+            }
         });
+
         const nowMarker = new Marker(this, {
             time: date_utils.now(),
             text: 'Now'

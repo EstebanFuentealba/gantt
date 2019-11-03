@@ -47,7 +47,9 @@
 				end: '2019-11-08',
 				name: 'Redesign website',
 				id: "Task 0",
-				progress: 20
+				progress: 20,
+				level: 0,
+				type: 'task'
 			},
 			{
 				start: '2019-11-03',
@@ -55,7 +57,9 @@
 				name: 'Write new content',
 				id: "Task 1",
 				progress: 5,
-				dependencies: 'Task 0'
+				dependencies: 'Task 0',
+				level: 1,
+				type: 'task'
 			},
 			{
 				start: '2019-11-04',
@@ -63,7 +67,9 @@
 				name: 'Apply new styles',
 				id: "Task 2",
 				progress: 10,
-				dependencies: 'Task 1'
+				dependencies: 'Task 1',
+				level: 2,
+				type: 'task'
 			},
 			{
 				start: '2019-11-08',
@@ -71,7 +77,9 @@
 				name: 'Review',
 				id: "Task 3",
 				progress: 5,
-				// dependencies: 'Task 2'
+				level: 0,
+				type: 'milestone',
+				dependencies: 'Task 2'
 			},
 			{
 				start: '2019-11-08',
@@ -79,7 +87,9 @@
 				name: 'Deploy',
 				id: "Task 4",
 				progress: 0,
-				dependencies: 'Task 2'
+				dependencies: 'Task 2',
+				level: 3,
+				type: 'task'
 			},
 			{
 				start: '2019-11-11',
@@ -88,7 +98,9 @@
 				id: "Task 5",
 				progress: 0,
 				dependencies: 'Task 4',
-				custom_class: 'bar-milestone'
+				custom_class: 'bar-milestone',
+				level: 4,
+				type: 'task'
 			},
 			{
 				start: '2019-11-11',
@@ -96,6 +108,8 @@
 				name: 'Dev',
 				id: "Task 5",
 				progress: 0,
+				level: 0,
+				type: 'task'
 			}
 		]
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
@@ -122,6 +136,7 @@
 				gantt_chart.change_view_mode(button.innerText);
 			}, false)
 		})
+
 	</script>
 </body>
 
