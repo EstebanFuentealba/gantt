@@ -30,6 +30,15 @@
 	<div class="container">
 		<h2>Interactive Gantt Chart entirely made in SVG!</h2>
 		<div class="gantt-target"></div>
+
+		<div class="btn-group mt-1 mx-auto" role="group">
+			<button id="ho" type="button" class="btn btn-sm btn-secondary">Hour</button>
+			<button id="qd" type="button" class="btn btn-sm btn-secondary">Quarter Day</button>
+			<button id="hd" type="button" class="btn btn-sm btn-secondary">Half Day</button>
+			<button id="da" type="button" class="btn btn-sm btn-secondary">Day</button>
+			<button id="we" type="button" class="btn btn-sm btn-secondary active">Week</button>
+			<button id="mo" type="button" class="btn btn-sm btn-secondary">Month</button>
+		</div>
 	</div>
 	<script>
 		var tasks = [
@@ -102,10 +111,17 @@
 			on_view_change: function (mode) {
 				// console.log(mode);
 			},
-			view_mode: 'Day',
+			arrow_curve: 0,
+			view_modes: ['Hour', 'Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
 			language: 'en'
 		});
-		console.log(gantt_chart);
+
+		['ho', 'qd', 'hd', 'da', 'we', 'mo'].map(id => {
+			let button = document.getElementById(id);
+			button.addEventListener('click', (e) => {
+				gantt_chart.change_view_mode(button.innerText);
+			}, false)
+		})
 	</script>
 </body>
 
