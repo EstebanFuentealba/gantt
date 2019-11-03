@@ -26,7 +26,7 @@ export default class Marker {
         const time = this.marker.time;
         const gantt_start = this.gantt.gantt_start;
 
-        const diff = date_utils.diff(time, gantt_start, 'hour');
+        const diff = date_utils.diff(time, gantt_start, 'minutes') / 60;
         let x = diff / step * column_width;
 
         if (this.gantt.view_is('Month')) {
@@ -44,11 +44,10 @@ export default class Marker {
         const marker = this.group.querySelector('.marker-today');
         const markerBox = this.group.querySelector('.marker-box');
         const markerText = this.group.querySelector('.marker-text');
-        console.log(marker);
         marker.setAttribute('x1', this.x);
         marker.setAttribute('x2', this.x);
         markerBox.setAttribute('x', this.x);
-        markerText.setAttribute('x', this.x);
+        markerText.setAttribute('x', this.x + 10);
     }
     draw() {
         this.draw_marker();

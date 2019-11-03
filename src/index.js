@@ -1,6 +1,7 @@
 import date_utils from './date_utils';
 import { $, createSVG } from './svg_utils';
 import Bar from './bar';
+import ArrowRect from './arrow_rect';
 import Arrow from './arrow';
 import Popup from './popup';
 import Marker from './marker';
@@ -609,7 +610,7 @@ export default class Gantt {
                 .map(task_id => {
                     const dependency = this.get_task(task_id);
                     if (!dependency) return;
-                    const arrow = new Arrow(
+                    const arrow = new ArrowRect(
                         this,
                         this.bars[dependency._index], // from_task
                         this.bars[task._index] // to_task
