@@ -3,6 +3,7 @@ import { $, createSVG } from './svg_utils';
 import Bar from './bar';
 import Arrow from './arrow';
 import Popup from './popup';
+import Marker from './marker';
 
 import './gantt.scss';
 
@@ -281,7 +282,15 @@ export default class Gantt {
 
     setup_layers() {
         this.layers = {};
-        const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
+        const layers = [
+            'grid',
+            'date',
+            'arrow',
+            'progress',
+            'bar',
+            'details',
+            'markers'
+        ];
         // make group layers
         for (let layer of layers) {
             this.layers[layer] = createSVG('g', {
@@ -566,6 +575,17 @@ export default class Gantt {
             this.layers.bar.appendChild(bar.group);
             return bar;
         });
+        const nowMarker = new Marker(this, {
+            time: date_utils.now(),
+            text: 'Now'
+        });
+        this.layers.markers.appendChild(nowMarker.group);
+        setInterval(() => {
+            nowMarker.setMarker({
+                time: date_utils.now(),
+                text: 'Now'
+            });
+        }, 1000);
     }
 
     make_arrows() {
@@ -917,6 +937,9 @@ export default class Gantt {
      */
     clear() {
         this.$svg.innerHTML = '';
+        if (this.draggable) {
+            this.draggable.kill();
+        }
     }
 }
 

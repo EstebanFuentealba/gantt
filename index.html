@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<title>Simple Gantt</title>
@@ -8,18 +9,23 @@
 			font-family: sans-serif;
 			background: #ccc;
 		}
+
 		.container {
 			width: 80%;
 			margin: 0 auto;
 		}
+
 		/* custom class */
 		.gantt .bar-milestone .bar {
 			fill: tomato;
 		}
 	</style>
 	<link rel="stylesheet" href="dist/frappe-gantt.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script>
 	<script src="dist/frappe-gantt.js"></script>
 </head>
+
 <body>
 	<div class="container">
 		<h2>Interactive Gantt Chart entirely made in SVG!</h2>
@@ -28,47 +34,47 @@
 	<script>
 		var tasks = [
 			{
-				start: '2018-10-01',
-				end: '2018-10-08',
+				start: '2019-11-01',
+				end: '2019-11-08',
 				name: 'Redesign website',
 				id: "Task 0",
 				progress: 20
 			},
 			{
-				start: '2018-10-03',
-				end: '2018-10-06',
+				start: '2019-11-03',
+				end: '2019-11-06',
 				name: 'Write new content',
 				id: "Task 1",
 				progress: 5,
 				dependencies: 'Task 0'
 			},
 			{
-				start: '2018-10-04',
-				end: '2018-10-08',
+				start: '2019-11-04',
+				end: '2019-11-08',
 				name: 'Apply new styles',
 				id: "Task 2",
 				progress: 10,
 				dependencies: 'Task 1'
 			},
 			{
-				start: '2018-10-08',
-				end: '2018-10-09',
+				start: '2019-11-08',
+				end: '2019-11-09',
 				name: 'Review',
 				id: "Task 3",
 				progress: 5,
-				dependencies: 'Task 2'
+				// dependencies: 'Task 2'
 			},
 			{
-				start: '2018-10-08',
-				end: '2018-10-10',
+				start: '2019-11-08',
+				end: '2019-11-10',
 				name: 'Deploy',
 				id: "Task 4",
 				progress: 0,
 				dependencies: 'Task 2'
 			},
 			{
-				start: '2018-10-11',
-				end: '2018-10-11',
+				start: '2019-11-11',
+				end: '2019-11-11',
 				name: 'Go Live!',
 				id: "Task 5",
 				progress: 0,
@@ -76,30 +82,31 @@
 				custom_class: 'bar-milestone'
 			},
 			{
-				start: '2014-01-05',
-				end: '2019-10-12',
-				name: 'Long term task',
-				id: "Task 6",
-				progress: 0
+				start: '2019-11-11',
+				end: '2019-11-11',
+				name: 'Dev',
+				id: "Task 5",
+				progress: 0,
 			}
 		]
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
 			on_click: function (task) {
-				console.log(task);
+				// console.log(task);
 			},
-			on_date_change: function(task, start, end) {
-				console.log(task, start, end);
+			on_date_change: function (task, start, end) {
+				// console.log(task, start, end);
 			},
-			on_progress_change: function(task, progress) {
-				console.log(task, progress);
+			on_progress_change: function (task, progress) {
+				// console.log(task, progress);
 			},
-			on_view_change: function(mode) {
-				console.log(mode);
+			on_view_change: function (mode) {
+				// console.log(mode);
 			},
-			view_mode: 'Month',
+			view_mode: 'Day',
 			language: 'en'
 		});
 		console.log(gantt_chart);
 	</script>
 </body>
+
 </html>
