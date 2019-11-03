@@ -69,7 +69,17 @@ export default class Milestone extends Bar {
             l -10,-10`
         );
     }
-
+    draw_label() {
+        createSVG('text', {
+            x: this.x,
+            y: this.y + this.height / 2,
+            innerHTML: this.task.name,
+            class: 'bar-label',
+            append_to: this.bar_group
+        });
+        // labels get BBox in the next tick
+        requestAnimationFrame(() => this.update_label_position());
+    }
     draw_bar() {
         this.$bar = createSVG('path', {
             x: this.x,
