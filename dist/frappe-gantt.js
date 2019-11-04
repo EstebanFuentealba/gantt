@@ -466,7 +466,11 @@ class Bar {
                 this.duration *
                 (this.task.progress / 100) || 0;
         this.group = createSVG('g', {
-            class: 'bar-wrapper ' + (this.task.custom_class || ''),
+            class:
+                'bar-wrapper ' +
+                (this.task._group ? `${this.task._group.bar_class} ` : '') +
+                (this.task.custom_class || ''),
+            'data-group-id': this.task.group_id,
             'data-id': this.task.id
         });
         this.bar_group = createSVG('g', {
@@ -640,7 +644,9 @@ class Bar {
 
         this.gantt.show_popup({
             target_element: this.$bar,
-            title: this.task.name,
+            title:
+                `<b>${this.task.name}</b>` +
+                (this.task._group ? `<br>${this.task._group.name}` : ''),
             subtitle: subtitle,
             task: this.task
         });
@@ -1397,6 +1403,10 @@ class Gantt {
     }
 
     setup_options(options) {
+        options.groups = options.groups.reduce((dict, curr) => {
+            dict[curr.id] = curr;
+            return dict;
+        }, {});
         const default_options = {
             header_height: 50,
             column_width: 30,
@@ -1418,6 +1428,7 @@ class Gantt {
             date_format: 'YYYY-MM-DD',
             popup_trigger: 'click',
             custom_popup_html: null,
+            groups: {},
             language: 'en'
         };
         this.options = Object.assign({}, default_options, options);
@@ -1481,6 +1492,13 @@ class Gantt {
             // uids
             if (!task.id) {
                 task.id = generate_id(task);
+            }
+            // task group
+            if (
+                typeof task.group_id !== 'undefined' &&
+                this.options.groups.hasOwnProperty(task.group_id)
+            ) {
+                task._group = this.options.groups[task.group_id];
             }
             let t = new Task(this, task);
             this.task_map[t.id] = t;

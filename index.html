@@ -100,6 +100,7 @@
 				start: '2019-11-01',
 				end: '2019-11-08',
 				name: 'Redesign website',
+				group_id: "design",
 				id: "Task 0",
 				progress: 20,
 				level: 0,
@@ -110,6 +111,7 @@
 				end: '2019-11-06',
 				name: 'Write new content',
 				id: "Task 1",
+				group_id: "development",
 				progress: 5,
 				dependencies: 'Task 0',
 				level: 1,
@@ -120,6 +122,7 @@
 				end: '2019-11-08',
 				name: 'Apply new styles',
 				id: "Task 2",
+				group_id: "development",
 				progress: 10,
 				dependencies: 'Task 1',
 				level: 2,
@@ -141,6 +144,7 @@
 				name: 'Deploy',
 				id: "Task 4",
 				progress: 0,
+				group_id: "integration",
 				dependencies: 'Task 2',
 				level: 3,
 				type: 'task'
@@ -150,6 +154,7 @@
 				end: '2019-11-11',
 				name: 'Go Live!',
 				id: "Task 5",
+				group_id: "integration",
 				progress: 0,
 				dependencies: 'Task 4',
 				custom_class: 'bar-milestone',
@@ -181,7 +186,24 @@
 			},
 			arrow_curve: 0,
 			view_modes: ['Hour', 'Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
-			language: 'en'
+			language: 'en',
+			groups: [
+				{
+					id: 'design',
+					name: 'Web Design',
+					bar_class: 'bar-design'
+				},
+				{
+					id: 'development',
+					name: 'Development',
+					bar_class: 'bar-development'
+				},
+				{
+					id: 'integration',
+					name: 'Integration & Deployment',
+					bar_class: 'bar-integration'
+				}
+			]
 		});
 
 		['ho', 'qd', 'hd', 'da', 'we', 'mo'].map(id => {

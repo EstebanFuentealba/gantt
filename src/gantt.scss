@@ -179,3 +179,28 @@ $handle-color: #ddd !default;
     stroke: #cd49ae;
     stroke-width: 1;
 }
+
+/* custom task group classes */
+.gantt .bar-design .bar {
+    fill: darkorchid;
+}
+.gantt .bar-design .bar-progress {
+    fill: darkmagenta;
+}
+.gantt .bar-development .bar {
+    fill: limegreen;
+}
+.gantt .bar-development .bar-progress {
+    fill: lime;
+}
+.gantt .bar-integration .bar {
+    fill: crimson;
+}
+.gantt .bar-integration .bar-progress {
+    fill: tomato;
+}
+
+/* custom class */
+.gantt .bar-milestone .bar {
+    fill: orangered;
+}
