@@ -170,7 +170,6 @@ $handle-color: #ddd !default;
 .marker-today {
     stroke-width: 2px;
     stroke: #e06671;
-    stroke-linecap: 'round';
     stroke-dasharray: 2, 2;
 }
 
@@ -203,4 +202,50 @@ $handle-color: #ddd !default;
 /* custom class */
 .gantt .bar-milestone .bar {
     fill: orangered;
+}
+
+.handle-link {
+    // visibility: hidden;
+}
+.circle-link.handle-dependency {
+    visibility: visible;
+}
+.path-link {
+    stroke-width: 2px;
+    stroke: #000;
+    stroke-dasharray: 2, 2;
+}
+.link-group {
+    opacity: 0;
+}
+.bar {
+    .bar-wrapper {
+        &:hover {
+            .link-group {
+                opacity: 1;
+            }
+        }
+        &.active {
+            .link-group {
+                opacity: 1 !important;
+                .link-in,
+                .link-out {
+                    opacity: 0;
+                }
+                .connector {
+                    &.link-in {
+                        opacity: 1;
+                    }
+                    &.link-out {
+                        opacity: 1;
+                    }
+                }
+            }
+        }
+    }
+    &.in-connection .bar-wrapper .link-group {
+        opacity: 0.3;
+        stroke: #666;
+        stroke-width: 1;
+    }
 }

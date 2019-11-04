@@ -49,6 +49,10 @@ export default class Bar {
             class: 'handle-group',
             append_to: this.group
         });
+        this.link_group = createSVG('g', {
+            class: 'link-group',
+            append_to: this.group
+        });
     }
 
     prepare_helpers() {
@@ -74,8 +78,51 @@ export default class Bar {
         this.draw_progress_bar();
         this.draw_label();
         this.draw_resize_handles();
+        this.draw_connector();
     }
+    draw_connector() {
+        const link_in = createSVG('g', {
+            class: 'link-connector link-in',
+            'task-id': this.task.id,
+            append_to: this.link_group
+        });
+        const link_out = createSVG('g', {
+            class: 'link-connector link-out',
+            'task-id': this.task.id,
+            append_to: this.link_group
+        });
+        createSVG('circle', {
+            cx: this.x - 8,
+            cy: this.y + 10,
+            r: 6,
+            class: 'circle-link',
+            append_to: link_in
+        });
+        createSVG('circle', {
+            cx: this.x - 8,
+            cy: this.y + 10,
+            r: 6,
+            class: 'handle-link link-input',
+            append_to: link_in,
+            task_id: this.task.id
+        });
 
+        createSVG('circle', {
+            cx: this.x + this.width + 8,
+            cy: this.y + 10,
+            r: 6,
+            class: 'circle-link',
+            append_to: link_out
+        });
+        createSVG('circle', {
+            cx: this.x + this.width + 8,
+            cy: this.y + 10,
+            r: 6,
+            class: 'handle-link link-output',
+            append_to: link_out,
+            task_id: this.task.id
+        });
+    }
     draw_bar() {
         this.$bar = createSVG('rect', {
             x: this.x,
@@ -94,7 +141,6 @@ export default class Bar {
             this.$bar.classList.add('bar-invalid');
         }
     }
-
     draw_progress_bar() {
         if (this.invalid) return;
         this.$bar_progress = createSVG('rect', {
@@ -191,7 +237,7 @@ export default class Bar {
             this.gantt.unselect_all();
             this.group.classList.toggle('active');
 
-            this.show_popup();
+            // this.show_popup();
         });
     }
 
@@ -244,6 +290,7 @@ export default class Bar {
         this.update_handle_position();
         this.update_progressbar_position();
         this.update_arrow_position();
+        this.update_connector_position();
     }
 
     date_changed() {
@@ -368,6 +415,21 @@ export default class Bar {
         return element;
     }
 
+    update_connector_position() {
+        const bar = this.$bar;
+        this.link_group
+            .querySelector('.link-in .circle-link')
+            .setAttribute('cx', bar.getX() - 8);
+        this.link_group
+            .querySelector('.link-in .handle-link')
+            .setAttribute('cx', bar.getX() - 8);
+        this.link_group
+            .querySelector('.link-out .circle-link')
+            .setAttribute('cx', bar.getX() + bar.getWidth() + 8);
+        this.link_group
+            .querySelector('.link-out .handle-link')
+            .setAttribute('cx', bar.getX() + bar.getWidth() + 8);
+    }
     update_progressbar_position() {
         this.$bar_progress.setAttribute('x', this.$bar.getX());
         this.$bar_progress.setAttribute(

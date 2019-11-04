@@ -481,6 +481,10 @@ class Bar {
             class: 'handle-group',
             append_to: this.group
         });
+        this.link_group = createSVG('g', {
+            class: 'link-group',
+            append_to: this.group
+        });
     }
 
     prepare_helpers() {
@@ -506,8 +510,51 @@ class Bar {
         this.draw_progress_bar();
         this.draw_label();
         this.draw_resize_handles();
+        this.draw_connector();
     }
+    draw_connector() {
+        const link_in = createSVG('g', {
+            class: 'link-connector link-in',
+            'task-id': this.task.id,
+            append_to: this.link_group
+        });
+        const link_out = createSVG('g', {
+            class: 'link-connector link-out',
+            'task-id': this.task.id,
+            append_to: this.link_group
+        });
+        createSVG('circle', {
+            cx: this.x - 8,
+            cy: this.y + 10,
+            r: 6,
+            class: 'circle-link',
+            append_to: link_in
+        });
+        createSVG('circle', {
+            cx: this.x - 8,
+            cy: this.y + 10,
+            r: 6,
+            class: 'handle-link link-input',
+            append_to: link_in,
+            task_id: this.task.id
+        });
 
+        createSVG('circle', {
+            cx: this.x + this.width + 8,
+            cy: this.y + 10,
+            r: 6,
+            class: 'circle-link',
+            append_to: link_out
+        });
+        createSVG('circle', {
+            cx: this.x + this.width + 8,
+            cy: this.y + 10,
+            r: 6,
+            class: 'handle-link link-output',
+            append_to: link_out,
+            task_id: this.task.id
+        });
+    }
     draw_bar() {
         this.$bar = createSVG('rect', {
             x: this.x,
@@ -526,7 +573,6 @@ class Bar {
             this.$bar.classList.add('bar-invalid');
         }
     }
-
     draw_progress_bar() {
         if (this.invalid) return;
         this.$bar_progress = createSVG('rect', {
@@ -623,7 +669,7 @@ class Bar {
             this.gantt.unselect_all();
             this.group.classList.toggle('active');
 
-            this.show_popup();
+            // this.show_popup();
         });
     }
 
@@ -676,6 +722,7 @@ class Bar {
         this.update_handle_position();
         this.update_progressbar_position();
         this.update_arrow_position();
+        this.update_connector_position();
     }
 
     date_changed() {
@@ -800,6 +847,21 @@ class Bar {
         return element;
     }
 
+    update_connector_position() {
+        const bar = this.$bar;
+        this.link_group
+            .querySelector('.link-in .circle-link')
+            .setAttribute('cx', bar.getX() - 8);
+        this.link_group
+            .querySelector('.link-in .handle-link')
+            .setAttribute('cx', bar.getX() - 8);
+        this.link_group
+            .querySelector('.link-out .circle-link')
+            .setAttribute('cx', bar.getX() + bar.getWidth() + 8);
+        this.link_group
+            .querySelector('.link-out .handle-link')
+            .setAttribute('cx', bar.getX() + bar.getWidth() + 8);
+    }
     update_progressbar_position() {
         this.$bar_progress.setAttribute('x', this.$bar.getX());
         this.$bar_progress.setAttribute(
@@ -1344,6 +1406,63 @@ class Milestone extends Bar {
     }
 }
 
+/**
+ * debouncing, executes the function if there was no new event in $wait milliseconds
+ * @param func
+ * @param wait
+ * @param scope
+ * @returns {Function}
+ */
+
+/**
+ * in case of a "storm of events", this executes once every $threshold
+ * @param fn
+ * @param threshhold
+ * @param scope
+ * @returns {Function}
+ */
+
+function throttle(fn, threshhold, scope) {
+    threshhold || (threshhold = 250);
+    var last, deferTimer;
+    return function() {
+        var context = scope || this;
+
+        var now = +new Date(),
+            args = arguments;
+        if (last && now < last + threshhold) {
+            // hold on to it
+            clearTimeout(deferTimer);
+            deferTimer = setTimeout(function() {
+                last = now;
+                fn.apply(context, args);
+            }, threshhold);
+        } else {
+            last = now;
+            fn.apply(context, args);
+        }
+    };
+}
+
+if (!Element.prototype.matches) {
+    Element.prototype.matches =
+        Element.prototype.msMatchesSelector ||
+        Element.prototype.webkitMatchesSelector;
+}
+
+if (!Element.prototype.closest) {
+    Element.prototype.closest = function(s) {
+        var el = this;
+
+        do {
+            if (el.matches(s)) return el;
+            el = el.parentElement || el.parentNode;
+        } while (el !== null && el.nodeType === 1);
+        return null;
+    };
+}
+
+//  https://www.wrike.com/gantt-chart/
 class Gantt {
     constructor(wrapper, tasks, options) {
         this.setup_wrapper(wrapper);
@@ -1951,7 +2070,15 @@ class Gantt {
                 return bar;
             }
         });
-
+        //  connector line
+        createSVG('line', {
+            x1: 0,
+            y1: 0,
+            id: 'path-link',
+            class: 'path-link',
+            visibility: 'hidden',
+            append_to: this.layers.bar
+        });
         const nowMarker = new Marker(this, {
             time: date_utils.now(),
             text: 'Now'
@@ -1984,6 +2111,40 @@ class Gantt {
                 .filter(Boolean); // filter falsy values
             this.arrows = this.arrows.concat(arrows);
         }
+    }
+    append_arrow(from_id, to_id) {
+        //  update task
+        this.task_map[to_id] = new Task(
+            this,
+            Object.assign({}, this.task_map[to_id], {
+                dependencies: this.task_map[to_id].dependencies.concat([
+                    from_id
+                ])
+            })
+        );
+        // add arrow
+        const arrow = new ArrowRect(
+            this,
+            this.get_bar(from_id), // from_task
+            this.get_bar(to_id) // to_task
+        );
+
+        //  update bar
+        this.get_bar(from_id).arrows = this.get_bar(from_id).arrows.concat([
+            arrow
+        ]);
+        this.get_bar(to_id).arrows = this.get_bar(to_id).arrows.concat([arrow]);
+
+        this.layers.arrow.appendChild(arrow.element);
+        this.arrows = this.arrows.concat([arrow]);
+
+        //  send event
+        this.trigger_event('dependency_added', [
+            {
+                from: this.get_task(from_id),
+                to: this.get_task(to_id)
+            }
+        ]);
     }
 
     map_arrows_on_bars() {
@@ -2041,6 +2202,7 @@ class Gantt {
 
     bind_bar_events() {
         let is_dragging = false;
+        let is_linking = false;
         let x_on_start = 0;
         let x_on_scroll_start = 0;
         let y_on_start = 0;
@@ -2050,81 +2212,160 @@ class Gantt {
         let bars = []; // instanceof Bar
         this.bar_being_dragged = null;
 
+        //  linking dependencies
+        let is_input_link = false;
+        let dependency_from = null;
+        let connector_from = null;
+        let dependency_from_linking = null;
+        let link_path = document.getElementById('path-link');
+
         function action_in_progress() {
-            return is_dragging || is_resizing_left || is_resizing_right;
+            return (
+                is_dragging ||
+                is_resizing_left ||
+                is_resizing_right ||
+                is_linking
+            );
         }
 
-        $.on(this.$svg, 'mousedown', '.bar-wrapper, .handle', (e, element) => {
-            const bar_wrapper = $.closest('.bar-wrapper', element);
+        $.on(
+            this.$svg,
+            'mousedown',
+            '.bar-wrapper, .handle, .handle-link',
+            (e, element) => {
+                const bar_wrapper = $.closest('.bar-wrapper', element);
 
-            if (element.classList.contains('left')) {
-                is_resizing_left = true;
-            } else if (element.classList.contains('right')) {
-                is_resizing_right = true;
-            } else if (element.classList.contains('bar-wrapper')) {
-                is_dragging = true;
-            }
+                x_on_start = e.offsetX;
+                y_on_start = e.offsetY;
 
-            bar_wrapper.classList.add('active');
+                if (element.classList.contains('handle-link')) {
+                    is_linking = true;
+                    is_input_link = !element.classList.contains('link-output');
 
-            x_on_start = e.offsetX;
-            y_on_start = e.offsetY;
+                    //  handle-dependency
+                    const $link_wrapper = $.closest('.link-connector', element);
+                    const link = $link_wrapper.querySelector('.handle-link');
+                    const circle = $link_wrapper.querySelector('.circle-link');
 
-            parent_bar_id = bar_wrapper.getAttribute('data-id');
-            const ids = [
-                parent_bar_id,
-                ...this.get_all_dependent_tasks(parent_bar_id)
-            ];
-            bars = ids.map(id => this.get_bar(id));
+                    connector_from = $link_wrapper;
+                    dependency_from = circle;
+                    dependency_from_linking = link;
 
-            this.bar_being_dragged = parent_bar_id;
-
-            bars.forEach(bar => {
-                const $bar = bar.$bar;
-                $bar.ox = $bar.getX();
-                $bar.oy = $bar.getY();
-                $bar.owidth = $bar.getWidth();
-                $bar.finaldx = 0;
-            });
-        });
-
-        $.on(this.$svg, 'mousemove', e => {
-            if (!action_in_progress()) return;
-            const dx = e.offsetX - x_on_start;
-            const dy = e.offsetY - y_on_start;
-
-            bars.forEach(bar => {
-                const $bar = bar.$bar;
-                $bar.finaldx = this.get_snap_position(dx);
-
-                if (is_resizing_left) {
-                    if (parent_bar_id === bar.task.id) {
-                        bar.update_bar_position({
-                            x: $bar.ox + $bar.finaldx,
-                            width: $bar.owidth - $bar.finaldx
-                        });
-                    } else {
-                        bar.update_bar_position({
-                            x: $bar.ox + $bar.finaldx
-                        });
+                    link_path.setAttribute('x1', x_on_start);
+                    link_path.setAttribute('y1', y_on_start);
+                    connector_from.classList.add('connector');
+                    this.layers.bar.classList.add('in-connection');
+                } else {
+                    if (element.classList.contains('left')) {
+                        is_resizing_left = true;
+                    } else if (element.classList.contains('right')) {
+                        is_resizing_right = true;
+                    } else if (element.classList.contains('bar-wrapper')) {
+                        is_dragging = true;
                     }
-                } else if (is_resizing_right) {
-                    if (parent_bar_id === bar.task.id) {
-                        bar.update_bar_position({
-                            width: $bar.owidth + $bar.finaldx
-                        });
-                    }
-                } else if (is_dragging) {
-                    bar.update_bar_position({ x: $bar.ox + $bar.finaldx });
+
+                    bar_wrapper.classList.add('active');
+                    parent_bar_id = bar_wrapper.getAttribute('data-id');
+                    const ids = [
+                        parent_bar_id,
+                        ...this.get_all_dependent_tasks(parent_bar_id)
+                    ];
+                    bars = ids.map(id => this.get_bar(id));
+
+                    this.bar_being_dragged = parent_bar_id;
+
+                    bars.forEach(bar => {
+                        const $bar = bar.$bar;
+                        $bar.ox = $bar.getX();
+                        $bar.oy = $bar.getY();
+                        $bar.owidth = $bar.getWidth();
+                        $bar.finaldx = 0;
+                    });
                 }
-            });
-        });
+            }
+        );
+
+        const mouseMoveHandler = e => {
+            if (!action_in_progress()) return;
+            if (is_linking) {
+                const dx = e.offsetX;
+                const dy = e.offsetY;
+                link_path.setAttribute('x1', x_on_start);
+                link_path.setAttribute('y1', y_on_start);
+                link_path.setAttribute('x2', dx);
+                link_path.setAttribute('y2', dy);
+                link_path.setAttribute('visibility', 'visible');
+
+                dependency_from_linking.setAttribute('cx', dx);
+                dependency_from_linking.setAttribute('cy', dy);
+            } else {
+                const dx = e.offsetX - x_on_start;
+                const dy = e.offsetY - y_on_start;
+
+                bars.forEach(bar => {
+                    const $bar = bar.$bar;
+                    $bar.finaldx = this.get_snap_position(dx);
+
+                    if (is_resizing_left) {
+                        if (parent_bar_id === bar.task.id) {
+                            bar.update_bar_position({
+                                x: $bar.ox + $bar.finaldx,
+                                width: $bar.owidth - $bar.finaldx
+                            });
+                        } else {
+                            bar.update_bar_position({
+                                x: $bar.ox + $bar.finaldx
+                            });
+                        }
+                    } else if (is_resizing_right) {
+                        if (parent_bar_id === bar.task.id) {
+                            bar.update_bar_position({
+                                width: $bar.owidth + $bar.finaldx
+                            });
+                        }
+                    } else if (is_dragging) {
+                        bar.update_bar_position({ x: $bar.ox + $bar.finaldx });
+                    }
+                });
+            }
+        };
+        $.on(this.$svg, 'mousemove', throttle(mouseMoveHandler, 20, this));
 
         document.addEventListener('mouseup', e => {
-            if (is_dragging || is_resizing_left || is_resizing_right) {
+            if (is_linking) {
+                try {
+                    const connector_to = e.target.closest('.bar-wrapper');
+                    let from_id = connector_from.getAttribute('task-id');
+                    let to_id = connector_to.getAttribute('data-id');
+                    if (to_id !== from_id) {
+                        this.append_arrow(from_id, to_id);
+                    }
+                } catch (error) {
+                    try {
+                        const connector_to = $.closest(
+                            '.link-connector',
+                            e.target
+                        );
+                        let from_id = connector_from.getAttribute('task-id');
+                        let to_id = connector_to.getAttribute('task-id');
+                        if (to_id !== from_id) {
+                            this.append_arrow(from_id, to_id);
+                        }
+                    } catch (error) {}
+                }
+
+                connector_from.classList.remove('connector');
+                this.layers.bar.setAttribute('class', 'bar');
+                const cx = dependency_from.getAttribute('cx');
+                const cy = dependency_from.getAttribute('cy');
+                dependency_from_linking.setAttribute('cx', cx);
+                dependency_from_linking.setAttribute('cy', cy);
+                link_path.setAttribute('visibility', 'hidden');
+                this.layers.bar.classList.remove('in-connection');
+            } else if (is_dragging || is_resizing_left || is_resizing_right) {
                 bars.forEach(bar => bar.group.classList.remove('active'));
             }
-
+            is_linking = false;
             is_dragging = false;
             is_resizing_left = false;
             is_resizing_right = false;
@@ -2179,7 +2420,7 @@ class Gantt {
             $bar_progress.max_dx = $bar.getWidth() - $bar_progress.getWidth();
         });
 
-        $.on(this.$svg, 'mousemove', e => {
+        const progressMouseMoveHandler = e => {
             if (!is_resizing) return;
             let dx = e.offsetX - x_on_start;
             let dy = e.offsetY - y_on_start;
@@ -2195,10 +2436,16 @@ class Gantt {
             $.attr($bar_progress, 'width', $bar_progress.owidth + dx);
             $.attr($handle, 'points', bar.get_progress_polygon_points());
             $bar_progress.finaldx = dx;
-        });
+        };
+        $.on(
+            this.$svg,
+            'mousemove',
+            throttle(progressMouseMoveHandler, 50, this)
+        );
 
-        $.on(this.$svg, 'mouseup', () => {
+        $.on(this.$svg, 'mouseup', e => {
             is_resizing = false;
+
             if (!($bar_progress && $bar_progress.finaldx)) return;
             bar.progress_changed();
             bar.set_action_completed();
@@ -2313,6 +2560,38 @@ class Gantt {
                 (prev_date, cur_date) =>
                     cur_date <= prev_date ? cur_date : prev_date
             );
+    }
+
+    /**
+     * draggable get Overlap Area
+     * @param {*} element1
+     * @param {*} element2
+     */
+    hit_test(element1, element2) {
+        var rect1 = element1.getBoundingClientRect();
+        var rect2 = element2.getBoundingClientRect();
+
+        console.log('rect1', rect1);
+        console.log('rect2', rect2);
+
+        var xOverlap = Math.max(
+            0,
+            Math.min(rect1.right, rect2.right) -
+                Math.max(rect1.left, rect2.left)
+        );
+        var yOverlap = Math.max(
+            0,
+            Math.min(rect1.bottom, rect2.bottom) -
+                Math.max(rect1.top, rect2.top)
+        );
+        // console.log('xOverlap', xOverlap, ' yOverlap', yOverlap);
+        // return xOverlap * yOverlap;
+        return (
+            rect1.x < rect2.x + rect2.width &&
+            rect1.x + rect1.width > rect2.x &&
+            rect1.y < rect2.y + rect2.height &&
+            rect1.y + rect1.height > rect2.y
+        );
     }
 
     /**

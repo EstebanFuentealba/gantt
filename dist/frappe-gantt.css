@@ -123,7 +123,6 @@
 .marker-today {
   stroke-width: 2px;
   stroke: #e06671;
-  stroke-linecap: 'round';
   stroke-dasharray: 2, 2; }
 
 .milestone {
@@ -153,3 +152,32 @@
 /* custom class */
 .gantt .bar-milestone .bar {
   fill: orangered; }
+
+.circle-link.handle-dependency {
+  visibility: visible; }
+
+.path-link {
+  stroke-width: 2px;
+  stroke: #000;
+  stroke-dasharray: 2, 2; }
+
+.link-group {
+  opacity: 0; }
+
+.bar .bar-wrapper:hover .link-group {
+  opacity: 1; }
+
+.bar .bar-wrapper.active .link-group {
+  opacity: 1 !important; }
+  .bar .bar-wrapper.active .link-group .link-in,
+  .bar .bar-wrapper.active .link-group .link-out {
+    opacity: 0; }
+  .bar .bar-wrapper.active .link-group .connector.link-in {
+    opacity: 1; }
+  .bar .bar-wrapper.active .link-group .connector.link-out {
+    opacity: 1; }
+
+.bar.in-connection .bar-wrapper .link-group {
+  opacity: 0.3;
+  stroke: #666;
+  stroke-width: 1; }

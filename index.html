@@ -170,7 +170,7 @@
 				start: '2019-11-11',
 				end: '2019-11-11',
 				name: 'Dev',
-				id: "Task 5",
+				id: "Task 5.1",
 				progress: 0,
 				level: 0,
 				type: 'task'
@@ -298,16 +298,22 @@
 		]
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
 			on_click: function (task) {
-				// console.log(task);
+				console.log(task);
 			},
 			on_date_change: function (task, start, end) {
-				// console.log(task, start, end);
+				console.log(task, start, end);
 			},
 			on_progress_change: function (task, progress) {
-				// console.log(task, progress);
+				console.log(task, progress);
 			},
 			on_view_change: function (mode) {
-				// console.log(mode);
+				console.log(mode);
+			},
+			on_dependency_added: function (link) {
+				console.log("added dependency to: ", link);
+			},
+			on_dependency_removed: function (task) {
+				console.log("removed dependency from: " + task);
 			},
 			arrow_curve: 0,
 			view_modes: ['Hour', 'Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
