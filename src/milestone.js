@@ -45,6 +45,7 @@ export default class Milestone extends Bar {
         this.height = this.gantt.options.bar_height;
         this.x = this.compute_x();
         this.y = this.compute_y();
+        this.width = this.gantt.options.column_width - 20;
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
             'data-id': this.task.id
@@ -53,10 +54,15 @@ export default class Milestone extends Bar {
             class: 'bar-group',
             append_to: this.group
         });
+        this.link_group = createSVG('g', {
+            class: 'link-group',
+            append_to: this.group
+        });
     }
     draw() {
         this.draw_bar();
         this.draw_label();
+        this.draw_connector();
     }
     update_milestone_position() {
         this.$bar.setAttribute('x', this.$bar.getX());
@@ -126,5 +132,7 @@ export default class Milestone extends Bar {
         this.update_milestone_position();
         this.update_label_position();
         this.update_arrow_position();
+
+        this.update_connector_position();
     }
 }
