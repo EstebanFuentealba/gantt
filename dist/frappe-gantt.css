@@ -32,9 +32,9 @@
 
 .gantt .bar {
   fill: #b8c2cc;
-  stroke: #8D99A6;
+  stroke: #8d99a6;
   stroke-width: 0;
-  transition: stroke-width .3s ease;
+  transition: stroke-width 0.3s ease;
   user-select: none; }
 
 .gantt .bar-progress {
@@ -42,7 +42,7 @@
 
 .gantt .bar-invalid {
   fill: transparent;
-  stroke: #8D99A6;
+  stroke: #8d99a6;
   stroke-width: 1;
   stroke-dasharray: 5; }
   .gantt .bar-invalid ~ .bar-label {
@@ -63,13 +63,14 @@
   cursor: ew-resize;
   opacity: 0;
   visibility: hidden;
-  transition: opacity .3s ease; }
+  transition: opacity 0.3s ease; }
 
 .gantt .bar-wrapper {
   cursor: pointer;
   outline: none; }
   .gantt .bar-wrapper:hover .bar {
-    fill: #a9b5c1; }
+    fill: #a9b5c1;
+    fill: green; }
   .gantt .bar-wrapper:hover .bar-progress {
     fill: #8a8aff; }
   .gantt .bar-wrapper:hover .handle {
@@ -80,7 +81,8 @@
   .gantt .bar-wrapper.active .bar-progress {
     fill: #8a8aff; }
 
-.gantt .lower-text, .gantt .upper-text {
+.gantt .lower-text,
+.gantt .upper-text {
   font-size: 12px;
   text-anchor: middle; }
 
@@ -117,3 +119,14 @@
       margin: 0 0 0 -5px;
       border: 5px solid transparent;
       border-top-color: rgba(0, 0, 0, 0.8); }
+
+.marker-today {
+  stroke-width: 2px;
+  stroke: #e06671;
+  stroke-linecap: 'round';
+  stroke-dasharray: 2, 2; }
+
+.milestone {
+  fill: #db7dc5;
+  stroke: #cd49ae;
+  stroke-width: 1; }

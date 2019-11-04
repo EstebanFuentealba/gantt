@@ -24,6 +24,20 @@ const month_names = {
         'November',
         'December'
     ],
+    es: [
+        'Enero',
+        'Febrero',
+        'Marzo',
+        'Abril',
+        'Mayo',
+        'Junio',
+        'Julio',
+        'Agosto',
+        'Septiembre',
+        'Octubre',
+        'Noviembre',
+        'Diciembre'
+    ],
     ru: [
         'Январь',
         'Февраль',
@@ -37,6 +51,34 @@ const month_names = {
         'Октябрь',
         'Ноябрь',
         'Декабрь'
+    ],
+    ptBr: [
+        'Janeiro',
+        'Fevereiro',
+        'Março',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro'
+    ],
+    fr: [
+        'Janvier',
+        'Février',
+        'Mars',
+        'Avril',
+        'Mai',
+        'Juin',
+        'Juillet',
+        'Août',
+        'Septembre',
+        'Octobre',
+        'Novembre',
+        'Décembre'
     ]
 };
 
@@ -404,7 +446,6 @@ class Bar {
         this.gantt = gantt;
         this.task = task;
     }
-
     prepare() {
         this.prepare_values();
         this.prepare_helpers();
@@ -585,10 +626,15 @@ class Bar {
     show_popup() {
         if (this.gantt.bar_being_dragged) return;
 
-        const start_date = date_utils.format(this.task._start, 'MMM D');
+        const start_date = date_utils.format(
+            this.task._start,
+            'MMM D',
+            this.gantt.options.language
+        );
         const end_date = date_utils.format(
             date_utils.add(this.task._end, -1, 'second'),
-            'MMM D'
+            'MMM D',
+            this.gantt.options.language
         );
         const subtitle = start_date + ' - ' + end_date;
 
@@ -762,7 +808,7 @@ class Bar {
 
         if (label.getBBox().width > bar.getWidth()) {
             label.classList.add('big');
-            label.setAttribute('x', bar.getX() + bar.getWidth() + 5);
+            label.setAttribute('x', bar.getX() + bar.getWidth() + 5 + 7.5 * 2);
         } else {
             label.classList.remove('big');
             label.setAttribute('x', bar.getX() + bar.getWidth() / 2);
@@ -801,73 +847,92 @@ class Arrow {
     }
 
     calculate_path() {
-        let start_x =
-            this.from_task.$bar.getX() + this.from_task.$bar.getWidth() / 2;
+        const borderRadius = 5;
+        const start_y = this.from_task.y + 10;
+        const start_x =
+            this.from_task.$bar.getX() + this.from_task.$bar.getWidth() + 10;
 
-        const condition = () =>
-            this.to_task.$bar.getX() < start_x + this.gantt.options.padding &&
-            start_x > this.from_task.$bar.getX() + this.gantt.options.padding;
+        const condition = () => {
+            return (
+                this.to_task.$bar.getX() <
+                    start_x + this.gantt.options.padding * 2 &&
+                start_x + this.gantt.options.padding * 2 >
+                    this.from_task.$bar.getX()
+            );
+        };
 
-        while (condition()) {
-            start_x -= 10;
-        }
-
-        const start_y =
-            this.gantt.options.header_height +
-            this.gantt.options.bar_height +
-            (this.gantt.options.padding + this.gantt.options.bar_height) *
-                this.from_task.task._index +
-            this.gantt.options.padding;
-
-        const end_x = this.to_task.$bar.getX() - this.gantt.options.padding / 2;
+        const end_x =
+            this.to_task.$bar.getX() - this.gantt.options.padding / 2 - 10;
         const end_y =
             this.gantt.options.header_height +
             this.gantt.options.bar_height / 2 +
             (this.gantt.options.padding + this.gantt.options.bar_height) *
-                this.to_task.task._index +
-            this.gantt.options.padding;
+                this.to_task.task._index;
 
-        const from_is_below_to =
-            this.from_task.task._index > this.to_task.task._index;
-        const curve = this.gantt.options.arrow_curve;
-        const clockwise = from_is_below_to ? 1 : 0;
-        const curve_y = from_is_below_to ? -curve : curve;
-        const offset = from_is_below_to
-            ? end_y + this.gantt.options.arrow_curve
-            : end_y - this.gantt.options.arrow_curve;
-
-        this.path = `
-            M ${start_x} ${start_y}
-            V ${offset}
-            a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
-            L ${end_x} ${end_y}
+        const down_1 = this.gantt.options.padding / 2;
+        const down_2 =
+            this.to_task.$bar.getY() + this.to_task.$bar.getHeight() / 2;
+        this.path = `M ${start_x} ${start_y} 
+            l 10,0 
+            a ${borderRadius},${borderRadius} 90 0,1 ${borderRadius},${borderRadius}
+            l 0,10
+            a ${borderRadius},${borderRadius} 90 0,1 -${borderRadius},${borderRadius}
+            L ${end_x},${end_y}
+            a ${borderRadius},${borderRadius} 90 0,0 -${borderRadius},${borderRadius}
+            l 0,10
+            a ${borderRadius},${borderRadius} 90 0,0 ${borderRadius},${borderRadius}
+            l 10,0
             m -5 -5
             l 5 5
             l -5 5`;
 
-        if (
-            this.to_task.$bar.getX() <
-            this.from_task.$bar.getX() + this.gantt.options.padding
-        ) {
-            const down_1 = this.gantt.options.padding / 2 - curve;
-            const down_2 =
-                this.to_task.$bar.getY() +
-                this.to_task.$bar.getHeight() / 2 -
-                curve_y;
-            const left = this.to_task.$bar.getX() - this.gantt.options.padding;
-
-            this.path = `
-                M ${start_x} ${start_y}
-                v ${down_1}
-                a ${curve} ${curve} 0 0 1 -${curve} ${curve}
-                H ${left}
-                a ${curve} ${curve} 0 0 ${clockwise} -${curve} ${curve_y}
-                V ${down_2}
-                a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
-                L ${end_x} ${end_y}
+        const heightBar =
+            this.gantt.options.bar_height + this.gantt.options.padding;
+        const heightCurrentBar = end_y - start_y + this.gantt.options.padding;
+        if (heightCurrentBar > heightBar) {
+            if (end_x > heightCurrentBar) {
+                this.path = `M ${start_x} ${start_y} 
+                l 10,0 
+                a ${borderRadius},${borderRadius} 90 0,1 ${borderRadius},${borderRadius}
+                l 0,10
+                a ${borderRadius},${borderRadius} 90 0,1 -${borderRadius},${borderRadius}
+                L ${end_x - 4},${start_y +
+                    this.gantt.options.padding / 2 +
+                    this.gantt.options.bar_height / 2 +
+                    1}
+                a ${borderRadius},${borderRadius} 90 0,0 -${borderRadius},${borderRadius}
+                l 0,10
+                L ${end_x - this.gantt.options.padding / 2},${end_y + 15}
+                a ${borderRadius},${borderRadius} 90 0,0 ${borderRadius},${borderRadius}
+                l 10,0
                 m -5 -5
                 l 5 5
                 l -5 5`;
+            }
+            if (!condition()) {
+                this.path = `M ${start_x} ${start_y} 
+                l 10,0 
+                a ${borderRadius},${borderRadius} 90 0,1 ${borderRadius},${borderRadius}
+                l 0,10
+                l 0, ${heightCurrentBar - this.gantt.options.padding}
+                a ${borderRadius},${borderRadius} 90 0,0 ${borderRadius},${borderRadius}
+                L ${end_x + this.gantt.options.padding / 2},${end_y + 20}
+                m -5 -5
+                l 5 5
+                l -5 5`;
+            }
+        } else {
+            if (!condition()) {
+                this.path = `M ${start_x} ${start_y} 
+                l 10,0 
+                a ${borderRadius},${borderRadius} 90 0,1 ${borderRadius},${borderRadius}
+                l 0,30
+                a ${borderRadius},${borderRadius} 90 0,0 ${borderRadius},${borderRadius}
+                L ${end_x},${end_y + 20}
+                m -5 -5
+                l 5 5
+                l -5 5`;
+            }
         }
     }
 
@@ -882,6 +947,84 @@ class Arrow {
     update() {
         this.calculate_path();
         this.element.setAttribute('d', this.path);
+    }
+}
+
+class ArrowRect extends Arrow {
+    calculate_path() {
+        const start_y = this.from_task.y + 10;
+        const start_x =
+            this.from_task.$bar.getX() + this.from_task.$bar.getWidth() + 10;
+
+        const condition = () => {
+            return (
+                this.to_task.$bar.getX() <
+                    start_x - 10 + this.gantt.options.padding * 2 &&
+                start_x - 10 + this.gantt.options.padding * 2 >
+                    this.from_task.$bar.getX() - 10
+            );
+        };
+        const end_x =
+            this.to_task.$bar.getX() - this.gantt.options.padding / 2 - 10;
+        const end_y =
+            this.gantt.options.header_height +
+            this.gantt.options.bar_height / 2 +
+            (this.gantt.options.padding + this.gantt.options.bar_height) *
+                this.to_task.task._index;
+
+        this.path = `M ${start_x - 10} ${start_y} 
+                l 10,0 
+                l 0,20
+                L ${end_x},${end_y}
+                l 0,20
+                l 15,0
+                m -5 -5
+                l 5 5
+                l -5 5`;
+
+        const heightBar =
+            this.gantt.options.bar_height + this.gantt.options.padding;
+        const heightCurrentBar = end_y - start_y + this.gantt.options.padding;
+
+        if (heightCurrentBar > heightBar) {
+            if (end_x > heightCurrentBar) {
+                this.path = `M ${start_x - 10} ${start_y}
+                    l 10,0
+                    l 0,20
+                    L ${end_x},${start_y +
+                    this.gantt.options.padding / 2 +
+                    this.gantt.options.bar_height / 2 +
+                    1}
+                    L ${end_x},${end_y + 15}
+                    l 0, 5
+                    l 15,0
+                    m -5 -5
+                    l 5 5
+                    l -5 5`;
+            }
+            if (!condition()) {
+                this.path = `M ${start_x} ${start_y}
+                    l 0,0
+                    l 0,20
+                    l 0, ${heightCurrentBar - this.gantt.options.padding}
+                    l 5,0
+                    L ${end_x + 5 + this.gantt.options.padding / 2},${end_y +
+                    20}
+                    m -5 -5
+                    l 5 5
+                    l -5 5`;
+            }
+        } else {
+            if (!condition()) {
+                this.path = `M ${start_x - 10} ${start_y}
+                l 10,0
+                l 0,40
+                L ${end_x + 15},${end_y + 20}
+                m -5 -5
+                l 5 5
+                l -5 5`;
+            }
+        }
     }
 }
 
@@ -954,6 +1097,248 @@ class Popup {
     }
 }
 
+class Marker {
+    constructor(gantt, marker) {
+        this.set_defaults(gantt, marker);
+        this.prepare();
+        this.draw();
+    }
+    set_defaults(gantt, marker) {
+        this.gantt = gantt;
+        this.marker = marker;
+    }
+    prepare() {
+        this.prepare_values();
+    }
+    prepare_values() {
+        this.x = this.compute_x();
+
+        this.group = createSVG('g', {
+            class: 'markers'
+        });
+    }
+    compute_x() {
+        const { step, column_width } = this.gantt.options;
+        const time = this.marker.time;
+        const gantt_start = this.gantt.gantt_start;
+
+        const diff = date_utils.diff(time, gantt_start, 'minutes') / 60;
+        let x = diff / step * column_width;
+
+        if (this.gantt.view_is('Month')) {
+            const diff = date_utils.diff(time, gantt_start, 'day');
+            x = diff * column_width / 30;
+        }
+        return x;
+    }
+    setMarker(marker) {
+        this.marker = marker;
+        this.x = this.compute_x();
+        this.update_marker_position();
+    }
+    update_marker_position() {
+        const marker = this.group.querySelector('.marker-today');
+        const markerBox = this.group.querySelector('.marker-box');
+        const markerText = this.group.querySelector('.marker-text');
+        marker.setAttribute('x1', this.x);
+        marker.setAttribute('x2', this.x);
+        markerBox.setAttribute('x', this.x);
+        markerText.setAttribute('x', this.x + 10);
+    }
+    draw() {
+        this.draw_marker();
+    }
+    draw_marker() {
+        createSVG('line', {
+            x1: this.x,
+            x2: this.x,
+            y1: 0,
+            y2: '100%',
+            class: 'marker-today',
+            append_to: this.group
+        });
+        const markerTextGroup = createSVG('g', {
+            transform: 'translate(0,10)',
+            append_to: this.group
+        });
+
+        const box = createSVG('rect', {
+            class: 'marker-box',
+            x: this.x,
+            y: 0,
+            width: 50,
+            height: 20,
+            fill: '#e06671',
+            append_to: markerTextGroup
+        });
+
+        const text = createSVG('text', {
+            class: 'marker-text',
+            fill: '#fff',
+            x: this.x + 10,
+            y: 14,
+            innerHTML: this.marker.text,
+            append_to: markerTextGroup
+        });
+    }
+}
+
+class Task {
+    constructor(gantt, task) {
+        this.set_defaults(gantt, task);
+    }
+    set_defaults(gantt, task) {
+        this.gantt = gantt;
+        Object.keys(
+            Object.assign({}, task, {
+                dependencies: task.dependencies || []
+            })
+        ).map(key => {
+            this[key] = task[key];
+        });
+    }
+    get_row() {
+        return this._index;
+    }
+    is_parent() {
+        return (
+            this.gantt.tasks.filter(task => {
+                return task.dependencies.includes(this.id);
+            }).length > 0
+        );
+    }
+    is_dependent(t) {}
+}
+
+class Milestone extends Bar {
+    constructor(gantt, task) {
+        super(gantt, task);
+        this.set_defaults(gantt, task);
+        this.prepare();
+        this.draw();
+    }
+
+    set_defaults(gantt, task) {
+        this.action_completed = false;
+        this.gantt = gantt;
+        this.task = task;
+    }
+    prepare() {
+        this.prepare_values();
+        this.prepare_helpers();
+    }
+    compute_x() {
+        const { step, column_width } = this.gantt.options;
+        const task_start = this.task._start;
+        const gantt_start = this.gantt.gantt_start;
+
+        const diff = date_utils.diff(task_start, gantt_start, 'hour');
+        let x = diff / step * column_width;
+
+        if (this.gantt.view_is('Month')) {
+            const diff = date_utils.diff(task_start, gantt_start, 'day');
+            x = diff * column_width / 30;
+        }
+        return x;
+    }
+
+    compute_y() {
+        return (
+            this.gantt.options.header_height +
+            this.gantt.options.padding +
+            this.task._index * (this.height + this.gantt.options.padding)
+        );
+    }
+
+    prepare_values() {
+        this.height = this.gantt.options.bar_height;
+        this.x = this.compute_x();
+        this.y = this.compute_y();
+        this.group = createSVG('g', {
+            class: 'bar-wrapper ' + (this.task.custom_class || ''),
+            'data-id': this.task.id
+        });
+        this.bar_group = createSVG('g', {
+            class: 'bar-group',
+            append_to: this.group
+        });
+    }
+    draw() {
+        this.draw_bar();
+        this.draw_label();
+    }
+    update_milestone_position() {
+        this.$bar.setAttribute('x', this.$bar.getX());
+        this.$bar.setAttribute(
+            'd',
+            `M${this.$bar.getX() + 10},${this.y + 2} 
+            l -10,10 
+            l 10,10
+            l 10,-10
+            l -10,-10`
+        );
+    }
+    draw_label() {
+        createSVG('text', {
+            x: this.x,
+            y: this.y + this.height / 2,
+            innerHTML: this.task.name,
+            class: 'bar-label',
+            append_to: this.bar_group
+        });
+        // labels get BBox in the next tick
+        requestAnimationFrame(() => this.update_label_position());
+    }
+    draw_bar() {
+        this.$bar = createSVG('path', {
+            x: this.x,
+            y: this.y,
+            width: 20,
+            height: 20,
+            d: `M${this.x + 10},${this.y + 2} 
+            l -10,10 
+            l 10,10
+            l 10,-10
+            l -10,-10`,
+            class: 'milestone',
+            append_to: this.bar_group
+        });
+    }
+    update_label_position() {
+        const bar = this.$bar,
+            label = this.group.querySelector('.bar-label');
+
+        label.classList.add('big');
+        label.setAttribute('x', bar.getX() + bar.getWidth() + 5);
+    }
+    update_bar_position({ x = null, width = null }) {
+        const bar = this.$bar;
+
+        if (x) {
+            // get all x values of parent task
+            const xs = this.task.dependencies.map(dep => {
+                return this.gantt.get_bar(dep).$bar.getX();
+            });
+            // child task must not go before parent
+            const valid_x = xs.reduce((prev, curr) => {
+                return x >= curr;
+            }, x);
+            if (!valid_x) {
+                width = null;
+                return;
+            }
+            this.update_attr(bar, 'x', x);
+        }
+        if (width && width >= this.gantt.options.column_width) {
+            this.update_attr(bar, 'width', width);
+        }
+        this.update_milestone_position();
+        this.update_label_position();
+        this.update_arrow_position();
+    }
+}
+
+//  https://www.wrike.com/gantt-chart/
 class Gantt {
     constructor(wrapper, tasks, options) {
         this.setup_wrapper(wrapper);
@@ -1017,6 +1402,7 @@ class Gantt {
             column_width: 30,
             step: 24,
             view_modes: [
+                'Hour',
                 'Quarter Day',
                 'Half Day',
                 'Day',
@@ -1038,6 +1424,7 @@ class Gantt {
     }
 
     setup_tasks(tasks) {
+        this.task_map = {};
         // prepare tasks
         this.tasks = tasks.map((task, i) => {
             // convert to Date objects
@@ -1095,8 +1482,9 @@ class Gantt {
             if (!task.id) {
                 task.id = generate_id(task);
             }
-
-            return task;
+            let t = new Task(this, task);
+            this.task_map[t.id] = t;
+            return t;
         });
 
         this.setup_dependencies();
@@ -1127,8 +1515,10 @@ class Gantt {
 
     update_view_scale(view_mode) {
         this.options.view_mode = view_mode;
-
-        if (view_mode === 'Day') {
+        if (view_mode === 'Hour') {
+            this.options.step = 24 / 24;
+            this.options.column_width = 38;
+        } else if (view_mode === 'Day') {
             this.options.step = 24;
             this.options.column_width = 38;
         } else if (view_mode === 'Half Day') {
@@ -1171,7 +1561,7 @@ class Gantt {
         this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
 
         // add date padding on both sides
-        if (this.view_is(['Quarter Day', 'Half Day'])) {
+        if (this.view_is(['Hour', 'Quarter Day', 'Half Day'])) {
             this.gantt_start = date_utils.add(this.gantt_start, -7, 'day');
             this.gantt_end = date_utils.add(this.gantt_end, 7, 'day');
         } else if (this.view_is('Month')) {
@@ -1229,7 +1619,15 @@ class Gantt {
 
     setup_layers() {
         this.layers = {};
-        const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
+        const layers = [
+            'grid',
+            'date',
+            'arrow',
+            'progress',
+            'bar',
+            'details',
+            'markers'
+        ];
         // make group layers
         for (let layer of layers) {
             this.layers[layer] = createSVG('g', {
@@ -1429,6 +1827,7 @@ class Gantt {
             last_date = date_utils.add(date, 1, 'year');
         }
         const date_text = {
+            Hour_lower: date_utils.format(date, 'HH', this.options.language),
             'Quarter Day_lower': date_utils.format(
                 date,
                 'HH',
@@ -1449,6 +1848,10 @@ class Gantt {
                     : date_utils.format(date, 'D', this.options.language),
             Month_lower: date_utils.format(date, 'MMMM', this.options.language),
             Year_lower: date_utils.format(date, 'YYYY', this.options.language),
+            Hour_upper:
+                date.getDate() !== last_date.getDate()
+                    ? date_utils.format(date, 'D MMM', this.options.language)
+                    : '',
             'Quarter Day_upper':
                 date.getDate() !== last_date.getDate()
                     ? date_utils.format(date, 'D MMM', this.options.language)
@@ -1484,10 +1887,15 @@ class Gantt {
         };
 
         const x_pos = {
-            'Quarter Day_lower': this.options.column_width * 4 / 2,
+            Hour_lower: 0,
             'Quarter Day_upper': 0,
+            Hour_upper: this.options.column_width * 24 / 2,
             'Half Day_lower': this.options.column_width * 2 / 2,
+            'Quarter Day_lower': 0,
             'Half Day_upper': 0,
+            'Quarter Day_upper': this.options.column_width * 4 / 2,
+            'Half Day_lower': 0,
+            'Half Day_upper': this.options.column_width * 2 / 2,
             Day_lower: this.options.column_width / 2,
             Day_upper: this.options.column_width * 30 / 2,
             Week_lower: 0,
@@ -1509,11 +1917,32 @@ class Gantt {
     }
 
     make_bars() {
+        this.bar_map = {};
         this.bars = this.tasks.map(task => {
-            const bar = new Bar(this, task);
-            this.layers.bar.appendChild(bar.group);
-            return bar;
+            if (task.type === 'task') {
+                const bar = new Bar(this, task);
+                this.layers.bar.appendChild(bar.group);
+                this.bar_map[task.id] = bar;
+                return bar;
+            } else if (task.type === 'milestone') {
+                const bar = new Milestone(this, task);
+                this.layers.bar.appendChild(bar.group);
+                this.bar_map[task.id] = bar;
+                return bar;
+            }
         });
+
+        const nowMarker = new Marker(this, {
+            time: date_utils.now(),
+            text: 'Now'
+        });
+        this.layers.markers.appendChild(nowMarker.group);
+        setInterval(() => {
+            nowMarker.setMarker({
+                time: date_utils.now(),
+                text: 'Now'
+            });
+        }, 1000 * 60);
     }
 
     make_arrows() {
@@ -1524,10 +1953,10 @@ class Gantt {
                 .map(task_id => {
                     const dependency = this.get_task(task_id);
                     if (!dependency) return;
-                    const arrow = new Arrow(
+                    const arrow = new ArrowRect(
                         this,
-                        this.bars[dependency._index], // from_task
-                        this.bars[task._index] // to_task
+                        this.get_bar(dependency.id), // from_task
+                        this.get_bar(task.id) // to_task
                     );
                     this.layers.arrow.appendChild(arrow.element);
                     return arrow;
@@ -1538,7 +1967,8 @@ class Gantt {
     }
 
     map_arrows_on_bars() {
-        for (let bar of this.bars) {
+        for (let task_id in this.bar_map) {
+            const bar = this.get_bar(task_id);
             bar.arrows = this.arrows.filter(arrow => {
                 return (
                     arrow.from_task.task.id === bar.task.id ||
@@ -1812,15 +2242,11 @@ class Gantt {
     }
 
     get_task(id) {
-        return this.tasks.find(task => {
-            return task.id === id;
-        });
+        return this.task_map[id];
     }
 
     get_bar(id) {
-        return this.bars.find(bar => {
-            return bar.task.id === id;
-        });
+        return this.bar_map[id];
     }
 
     show_popup(options) {
@@ -1865,6 +2291,9 @@ class Gantt {
      */
     clear() {
         this.$svg.innerHTML = '';
+        if (this.draggable) {
+            this.draggable.kill();
+        }
     }
 }
 

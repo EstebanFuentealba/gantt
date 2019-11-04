@@ -8,11 +8,6 @@ export default class ArrowRect extends Arrow {
             this.from_task.$bar.getX() + this.from_task.$bar.getWidth() + 10;
 
         const condition = () => {
-            console.log(
-                'condition',
-                this.to_task.$bar.getX() - 10,
-                start_x + this.gantt.options.padding * 2
-            );
             return (
                 this.to_task.$bar.getX() <
                     start_x - 10 + this.gantt.options.padding * 2 &&
