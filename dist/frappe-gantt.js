@@ -1020,10 +1020,16 @@ class Arrow {
 
 class ArrowRect extends Arrow {
     calculate_path() {
+        console.log(
+            'calculate_path',
+            this.from_task.y > this.to_task.$bar.getY()
+        );
         const start_y = this.from_task.y + 10;
         const start_x =
             this.from_task.$bar.getX() + this.from_task.$bar.getWidth() + 10;
 
+        const is_top_to_bottom = () =>
+            this.from_task.y < this.to_task.$bar.getY();
         const condition = () => {
             return (
                 this.to_task.$bar.getX() <
@@ -1040,7 +1046,8 @@ class ArrowRect extends Arrow {
             (this.gantt.options.padding + this.gantt.options.bar_height) *
                 this.to_task.task._index;
 
-        this.path = `M ${start_x - 10} ${start_y} 
+        if (is_top_to_bottom()) {
+            this.path = `M ${start_x - 10} ${start_y} 
                 l 10,0 
                 l 0,20
                 L ${end_x},${end_y}
@@ -1049,6 +1056,17 @@ class ArrowRect extends Arrow {
                 m -5 -5
                 l 5 5
                 l -5 5`;
+        } else {
+            this.path = `M ${start_x - 10} ${start_y}
+                l 10,0
+                l 0,-20
+                L ${end_x},${start_y - this.gantt.options.bar_height}
+                l 0,-20
+                l 15,0
+                m -5 -5
+                l 5 5
+                l -5 5`;
+        }
 
         const heightBar =
             this.gantt.options.bar_height + this.gantt.options.padding;
@@ -1084,13 +1102,25 @@ class ArrowRect extends Arrow {
             }
         } else {
             if (!condition()) {
-                this.path = `M ${start_x - 10} ${start_y}
-                l 10,0
-                l 0,40
-                L ${end_x + 15},${end_y + 20}
-                m -5 -5
-                l 5 5
-                l -5 5`;
+                if (is_top_to_bottom()) {
+                    this.path = `M ${start_x - 10} ${start_y}
+                    l 10,0
+                    l 0,40
+                    L ${end_x + 15},${end_y + 20}
+                    m -5 -5
+                    l 5 5
+                    l -5 5`;
+                } else {
+                    this.path = `M ${start_x - 10} ${start_y}
+                    l 10,0
+                    l 0,-40
+                    L ${end_x + 15},${start_y -
+                        this.gantt.options.header_height +
+                        this.gantt.options.bar_height / 2}
+                    m -5 -5
+                    l 5 5
+                    l -5 5`;
+                }
             }
         }
     }

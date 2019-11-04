@@ -182,7 +182,9 @@
 				id: "Task 6",
 				progress: 0,
 				level: 0,
-				type: 'task'
+				type: 'task',
+
+				dependencies: ['Task 7']
 			},
 			{
 				start: '2019-11-12',
@@ -191,7 +193,8 @@
 				id: "Task 7",
 				progress: 0,
 				level: 0,
-				type: 'task'
+				type: 'task',
+
 			}, {
 				start: '2019-11-12',
 				end: '2019-11-13',
@@ -312,8 +315,8 @@
 			on_dependency_added: function (link) {
 				console.log("added dependency to: ", link);
 			},
-			on_dependency_removed: function (task) {
-				console.log("removed dependency from: " + task);
+			on_dependency_removed: function (link) {
+				console.log("removed dependency from: ", link);
 			},
 			arrow_curve: 0,
 			view_modes: ['Hour', 'Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
