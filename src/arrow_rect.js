@@ -54,8 +54,8 @@ export default class ArrowRect extends Arrow {
                     l -5 5`;
             }
             if (!condition()) {
-                this.path = `M ${start_x} ${start_y}
-                    l 0,0
+                this.path = `M ${start_x - 10} ${start_y}
+                    l 10,0
                     l 0,20
                     l 0, ${heightCurrentBar - this.gantt.options.padding}
                     l 5,0
