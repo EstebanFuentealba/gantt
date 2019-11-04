@@ -24,6 +24,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script>
 	<script src="dist/frappe-gantt.js"></script>
+	<style>
+		.gantt-target>div {
+			height: 400px
+		}
+	</style>
 </head>
 
 <body>
@@ -307,6 +312,7 @@
 			arrow_curve: 0,
 			view_modes: ['Hour', 'Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
 			language: 'en',
+			header_fixed: true,
 			groups: [
 				{
 					id: 'design',

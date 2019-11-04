@@ -94,6 +94,7 @@ export default class Gantt {
             date_format: 'YYYY-MM-DD',
             popup_trigger: 'click',
             custom_popup_html: null,
+            header_fixed: false,
             groups: {},
             language: 'en'
         };
@@ -310,7 +311,6 @@ export default class Gantt {
             'bar',
             'details',
             'markers',
-
             'date'
         ];
         // make group layers
@@ -394,7 +394,9 @@ export default class Gantt {
             width: header_width,
             height: header_height,
             class: 'grid-header',
-            append_to: this.layers.date
+            append_to: this.options.header_fixed
+                ? this.layers.date
+                : this.layers.grid
         });
     }
 
@@ -795,13 +797,15 @@ export default class Gantt {
             is_resizing_right = false;
         });
 
-        $.on(this.$container, 'scroll', e => {
-            this.layers.date.setAttribute(
-                'transform',
-                'translate(0,' + e.currentTarget.scrollTop + ')'
-            );
-            x_on_scroll_start = e.currentTarget.scrollLeft;
-        });
+        if (this.options.header_fixed) {
+            $.on(this.$container, 'scroll', e => {
+                this.layers.date.setAttribute(
+                    'transform',
+                    'translate(0,' + e.currentTarget.scrollTop + ')'
+                );
+                x_on_scroll_start = e.currentTarget.scrollLeft;
+            });
+        }
 
         $.on(this.$svg, 'mouseup', e => {
             this.bar_being_dragged = null;
