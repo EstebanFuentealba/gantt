@@ -1644,8 +1644,8 @@ class Gantt {
             'progress',
             'bar',
             'details',
-            'markers',
-            'date'
+            'date',
+            'markers'
         ];
         // make group layers
         for (let layer of layers) {
