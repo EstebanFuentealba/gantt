@@ -305,12 +305,13 @@ export default class Gantt {
         this.layers = {};
         const layers = [
             'grid',
-            'date',
             'arrow',
             'progress',
             'bar',
             'details',
-            'markers'
+            'markers',
+
+            'date'
         ];
         // make group layers
         for (let layer of layers) {
@@ -393,7 +394,7 @@ export default class Gantt {
             width: header_width,
             height: header_height,
             class: 'grid-header',
-            append_to: this.layers.grid
+            append_to: this.layers.date
         });
     }
 
@@ -706,6 +707,7 @@ export default class Gantt {
     bind_bar_events() {
         let is_dragging = false;
         let x_on_start = 0;
+        let x_on_scroll_start = 0;
         let y_on_start = 0;
         let is_resizing_left = false;
         let is_resizing_right = false;
@@ -791,6 +793,14 @@ export default class Gantt {
             is_dragging = false;
             is_resizing_left = false;
             is_resizing_right = false;
+        });
+
+        $.on(this.$container, 'scroll', e => {
+            this.layers.date.setAttribute(
+                'transform',
+                'translate(0,' + e.currentTarget.scrollTop + ')'
+            );
+            x_on_scroll_start = e.currentTarget.scrollLeft;
         });
 
         $.on(this.$svg, 'mouseup', e => {
