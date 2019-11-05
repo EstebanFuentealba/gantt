@@ -168,7 +168,10 @@
   opacity: 1; }
 
 .bar .bar-wrapper.active .link-group {
-  opacity: 1 !important; }
+  opacity: 1 !important;
+  stroke: #8d99a6 !important;
+  stroke-dasharray: 0 !important;
+  fill: orange; }
   .bar .bar-wrapper.active .link-group .link-in,
   .bar .bar-wrapper.active .link-group .link-out {
     opacity: 0; }
@@ -178,6 +181,12 @@
     opacity: 1; }
 
 .bar.in-connection .bar-wrapper .link-group {
-  opacity: 0.3;
-  stroke: #666;
-  stroke-width: 1; }
+  opacity: 1;
+  fill: #dfe2e5;
+  stroke: #8d99a6;
+  stroke-width: 1;
+  stroke-dasharray: 2, 2; }
+  .bar.in-connection .bar-wrapper .link-group .link-in .handle-link:hover {
+    fill: orange; }
+  .bar.in-connection .bar-wrapper .link-group .link-out .handle-link:hover {
+    fill: orange; }

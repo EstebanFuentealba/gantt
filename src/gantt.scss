@@ -228,6 +228,9 @@ $handle-color: #ddd !default;
         &.active {
             .link-group {
                 opacity: 1 !important;
+                stroke: $bar-stroke !important;
+                stroke-dasharray: 0 !important;
+                fill: orange;
                 .link-in,
                 .link-out {
                     opacity: 0;
@@ -243,9 +246,25 @@ $handle-color: #ddd !default;
             }
         }
     }
-    &.in-connection .bar-wrapper .link-group {
-        opacity: 0.3;
-        stroke: #666;
-        stroke-width: 1;
+    &.in-connection {
+        .bar-wrapper {
+            .link-group {
+                opacity: 1;
+                fill: #dfe2e5;
+                stroke: $bar-stroke;
+                stroke-width: 1;
+                stroke-dasharray: 2, 2;
+                .link-in .handle-link {
+                    &:hover {
+                        fill: orange;
+                    }
+                }
+                .link-out .handle-link {
+                    &:hover {
+                        fill: orange;
+                    }
+                }
+            }
+        }
     }
 }
