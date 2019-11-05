@@ -2252,6 +2252,7 @@ class Gantt {
         let dependency_from = null;
         let connector_from = null;
         let dependency_from_linking = null;
+        let radius = 0;
         let link_path = document.getElementById('path-link');
 
         function action_in_progress() {
@@ -2286,8 +2287,9 @@ class Gantt {
                     dependency_from = circle;
                     dependency_from_linking = link;
 
-                    x_on_start = circle.getAttribute('cx');
-                    y_on_start = circle.getAttribute('cy');
+                    x_on_start = +circle.getAttribute('cx');
+                    y_on_start = +circle.getAttribute('cy');
+                    radius = +circle.getAttribute('r');
 
                     link_path.setAttribute('x1', x_on_start);
                     link_path.setAttribute('y1', y_on_start);
@@ -2328,10 +2330,8 @@ class Gantt {
             if (is_linking) {
                 const dx = e.offsetX;
                 const dy = e.offsetY;
-                link_path.setAttribute('x1', x_on_start);
-                link_path.setAttribute('y1', y_on_start);
-                link_path.setAttribute('x2', dx);
-                link_path.setAttribute('y2', dy);
+                link_path.setAttribute('x2', dx - radius / 2);
+                link_path.setAttribute('y2', dy - radius / 2);
                 link_path.setAttribute('visibility', 'visible');
 
                 dependency_from_linking.setAttribute('cx', dx);
