@@ -106,7 +106,7 @@ export default class Milestone extends Bar {
             label = this.group.querySelector('.bar-label');
 
         label.classList.add('big');
-        label.setAttribute('x', bar.getX() + bar.getWidth() + 5);
+        label.setAttribute('x', bar.getX() + bar.getWidth() + 5 + 7.5);
     }
     update_bar_position({ x = null, width = null }) {
         const bar = this.$bar;
