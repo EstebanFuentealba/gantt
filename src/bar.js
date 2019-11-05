@@ -267,6 +267,7 @@ export default class Bar {
     }
 
     update_bar_position({ x = null, width = null }) {
+        console.log('update_bar_position', x, width);
         const bar = this.$bar;
         if (x) {
             // get all x values of parent task

@@ -29,6 +29,7 @@ if (!Element.prototype.closest) {
 }
 
 //  https://www.wrike.com/gantt-chart/
+//  https://codepen.io/osublake/pen/4c3752574267b3a986cb8eee7ccb8c81
 export default class Gantt {
     constructor(wrapper, tasks, options) {
         this.setup_wrapper(wrapper);
@@ -87,7 +88,7 @@ export default class Gantt {
     }
 
     setup_options(options) {
-        options.groups = options.groups.reduce((dict, curr) => {
+        options.groups = (options.groups || []).reduce((dict, curr) => {
             dict[curr.id] = curr;
             return dict;
         }, {});

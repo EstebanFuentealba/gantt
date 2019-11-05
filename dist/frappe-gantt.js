@@ -699,6 +699,7 @@ class Bar {
     }
 
     update_bar_position({ x = null, width = null }) {
+        console.log('update_bar_position', x, width);
         const bar = this.$bar;
         if (x) {
             // get all x values of parent task
@@ -1498,6 +1499,7 @@ if (!Element.prototype.closest) {
 }
 
 //  https://www.wrike.com/gantt-chart/
+//  https://codepen.io/osublake/pen/4c3752574267b3a986cb8eee7ccb8c81
 class Gantt {
     constructor(wrapper, tasks, options) {
         this.setup_wrapper(wrapper);
