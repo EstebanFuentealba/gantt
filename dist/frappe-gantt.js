@@ -2290,6 +2290,9 @@ class Gantt {
                     dependency_from = circle;
                     dependency_from_linking = link;
 
+                    x_on_start = circle.getAttribute('cx');
+                    y_on_start = circle.getAttribute('cy');
+
                     link_path.setAttribute('x1', x_on_start);
                     link_path.setAttribute('y1', y_on_start);
                     connector_from.classList.add('connector');
