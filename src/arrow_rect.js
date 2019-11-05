@@ -44,7 +44,7 @@ export default class ArrowRect extends Arrow {
                 l 10,0
                 l 0,-20
                 L ${end_x},${start_y - this.gantt.options.bar_height}
-                l 0,-20
+                l 0,-${this.gantt.options.padding - 2}
                 l 15,0
                 m -5 -5
                 l 5 5
@@ -96,10 +96,11 @@ export default class ArrowRect extends Arrow {
                 } else {
                     this.path = `M ${start_x - 10} ${start_y}
                     l 10,0
-                    l 0,-40
+                    l 0,-36
                     L ${end_x + 15},${start_y -
                         this.gantt.options.header_height +
-                        this.gantt.options.bar_height / 2}
+                        this.gantt.options.bar_height / 2 +
+                        4}
                     m -5 -5
                     l 5 5
                     l -5 5`;
