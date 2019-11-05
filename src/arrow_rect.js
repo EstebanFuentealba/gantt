@@ -3,10 +3,6 @@ import Arrow from './arrow';
 
 export default class ArrowRect extends Arrow {
     calculate_path() {
-        console.log(
-            'calculate_path',
-            this.from_task.y > this.to_task.$bar.getY()
-        );
         const start_y = this.from_task.y + 10;
         const start_x =
             this.from_task.$bar.getX() + this.from_task.$bar.getWidth() + 10;
