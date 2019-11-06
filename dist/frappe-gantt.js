@@ -655,22 +655,35 @@ class Bar {
         this.setup_click_event();
     }
 
+    on_click_event(e) {
+        if (this.action_completed) {
+            // just finished a move action, wait for a few seconds
+            return;
+        }
+
+        if (e.type === 'click') {
+            this.gantt.trigger_event('click', [this.task]);
+        }
+
+        this.gantt.unselect_all();
+        this.group.classList.toggle('active');
+        this.show_popup();
+    }
     setup_click_event() {
-        $.on(this.group, 'focus ' + this.gantt.options.popup_trigger, e => {
-            if (this.action_completed) {
-                // just finished a move action, wait for a few seconds
-                return;
-            }
-
-            if (e.type === 'click') {
-                this.gantt.trigger_event('click', [this.task]);
-            }
-
-            this.gantt.unselect_all();
-            this.group.classList.toggle('active');
-
-            this.show_popup();
-        });
+        $.on(this.group, 'focus', this.on_click_event.bind(this));
+        $.on(
+            this.group,
+            this.gantt.options.popup_trigger,
+            this.on_click_event.bind(this)
+        );
+    }
+    stop_click_event() {
+        $.off(this.group, 'focus', this.on_click_event.bind(this));
+        $.off(
+            this.group,
+            this.gantt.options.popup_trigger,
+            this.on_click_event.bind(this)
+        );
     }
 
     show_popup() {
@@ -2255,27 +2268,31 @@ class Gantt {
         let dependency_from_linking = null;
         let radius = 0;
         let link_path = document.getElementById('path-link');
+        let task_id = '';
 
-        function action_in_progress() {
+        const action_in_progress = () => {
             return (
                 is_dragging ||
                 is_resizing_left ||
                 is_resizing_right ||
                 is_linking
             );
-        }
+        };
 
         $.on(
             this.$svg,
             'mousedown',
             '.bar-wrapper, .handle, .handle-link',
             (e, element) => {
+                e.preventDefault();
                 const bar_wrapper = $.closest('.bar-wrapper', element);
+                task_id = bar_wrapper.getAttribute('data-id');
 
                 x_on_start = e.offsetX;
                 y_on_start = e.offsetY;
 
                 if (element.classList.contains('handle-link')) {
+                    this.get_bar(task_id).stop_click_event();
                     is_linking = true;
                     is_input_link = !element.classList.contains('link-output');
 
@@ -2327,6 +2344,7 @@ class Gantt {
         );
 
         const mouseMoveHandler = e => {
+            e.preventDefault();
             if (!action_in_progress()) return;
             if (is_linking) {
                 const dx = e.offsetX;
@@ -2371,6 +2389,7 @@ class Gantt {
         $.on(this.$svg, 'mousemove', throttle(mouseMoveHandler, 20, this));
 
         document.addEventListener('mouseup', e => {
+            e.preventDefault();
             if (is_linking) {
                 try {
                     const connector_to = e.target.closest('.bar-wrapper');
@@ -2401,6 +2420,7 @@ class Gantt {
                 dependency_from_linking.setAttribute('cy', cy);
                 link_path.setAttribute('visibility', 'hidden');
                 this.layers.bar.classList.remove('in-connection');
+                this.get_bar(task_id).setup_click_event();
             } else if (is_dragging || is_resizing_left || is_resizing_right) {
                 bars.forEach(bar => bar.group.classList.remove('active'));
             }

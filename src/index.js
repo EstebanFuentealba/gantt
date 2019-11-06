@@ -787,27 +787,31 @@ export default class Gantt {
         let dragElement = null;
         let radius = 0;
         let link_path = document.getElementById('path-link');
+        let task_id = '';
 
-        function action_in_progress() {
+        const action_in_progress = () => {
             return (
                 is_dragging ||
                 is_resizing_left ||
                 is_resizing_right ||
                 is_linking
             );
-        }
+        };
 
         $.on(
             this.$svg,
             'mousedown',
             '.bar-wrapper, .handle, .handle-link',
             (e, element) => {
+                e.preventDefault();
                 const bar_wrapper = $.closest('.bar-wrapper', element);
+                task_id = bar_wrapper.getAttribute('data-id');
 
                 x_on_start = e.offsetX;
                 y_on_start = e.offsetY;
 
                 if (element.classList.contains('handle-link')) {
+                    this.get_bar(task_id).stop_click_event();
                     is_linking = true;
                     is_input_link = !element.classList.contains('link-output');
 
@@ -859,6 +863,7 @@ export default class Gantt {
         );
 
         const mouseMoveHandler = e => {
+            e.preventDefault();
             if (!action_in_progress()) return;
             if (is_linking) {
                 const dx = e.offsetX;
@@ -903,6 +908,7 @@ export default class Gantt {
         $.on(this.$svg, 'mousemove', throttle(mouseMoveHandler, 20, this));
 
         document.addEventListener('mouseup', e => {
+            e.preventDefault();
             if (is_linking) {
                 try {
                     const connector_to = e.target.closest('.bar-wrapper');
@@ -933,6 +939,7 @@ export default class Gantt {
                 dependency_from_linking.setAttribute('cy', cy);
                 link_path.setAttribute('visibility', 'hidden');
                 this.layers.bar.classList.remove('in-connection');
+                this.get_bar(task_id).setup_click_event();
             } else if (is_dragging || is_resizing_left || is_resizing_right) {
                 bars.forEach(bar => bar.group.classList.remove('active'));
             }

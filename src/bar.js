@@ -223,22 +223,35 @@ export default class Bar {
         this.setup_click_event();
     }
 
+    on_click_event(e) {
+        if (this.action_completed) {
+            // just finished a move action, wait for a few seconds
+            return;
+        }
+
+        if (e.type === 'click') {
+            this.gantt.trigger_event('click', [this.task]);
+        }
+
+        this.gantt.unselect_all();
+        this.group.classList.toggle('active');
+        this.show_popup();
+    }
     setup_click_event() {
-        $.on(this.group, 'focus ' + this.gantt.options.popup_trigger, e => {
-            if (this.action_completed) {
-                // just finished a move action, wait for a few seconds
-                return;
-            }
-
-            if (e.type === 'click') {
-                this.gantt.trigger_event('click', [this.task]);
-            }
-
-            this.gantt.unselect_all();
-            this.group.classList.toggle('active');
-
-            this.show_popup();
-        });
+        $.on(this.group, 'focus', this.on_click_event.bind(this));
+        $.on(
+            this.group,
+            this.gantt.options.popup_trigger,
+            this.on_click_event.bind(this)
+        );
+    }
+    stop_click_event() {
+        $.off(this.group, 'focus', this.on_click_event.bind(this));
+        $.off(
+            this.group,
+            this.gantt.options.popup_trigger,
+            this.on_click_event.bind(this)
+        );
     }
 
     show_popup() {
