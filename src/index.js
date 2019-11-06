@@ -1110,6 +1110,7 @@ export default class Gantt {
 
     hide_popup() {
         this.popup && this.popup.hide();
+        this.popup_wrapper.style = '';
     }
 
     trigger_event(event, args) {
@@ -1141,9 +1142,6 @@ export default class Gantt {
     hit_test(element1, element2) {
         var rect1 = element1.getBoundingClientRect();
         var rect2 = element2.getBoundingClientRect();
-
-        console.log('rect1', rect1);
-        console.log('rect2', rect2);
 
         var xOverlap = Math.max(
             0,

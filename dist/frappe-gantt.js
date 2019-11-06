@@ -669,7 +669,7 @@ class Bar {
             this.gantt.unselect_all();
             this.group.classList.toggle('active');
 
-            // this.show_popup();
+            this.show_popup();
         });
     }
 
@@ -699,7 +699,6 @@ class Bar {
     }
 
     update_bar_position({ x = null, width = null }) {
-        console.log('update_bar_position', x, width);
         const bar = this.$bar;
         if (x) {
             // get all x values of parent task
@@ -1558,7 +1557,7 @@ class Gantt {
     }
 
     setup_options(options) {
-        options.groups = options.groups.reduce((dict, curr) => {
+        options.groups = (options.groups || []).reduce((dict, curr) => {
             dict[curr.id] = curr;
             return dict;
         }, {});
@@ -2579,6 +2578,7 @@ class Gantt {
 
     hide_popup() {
         this.popup && this.popup.hide();
+        this.popup_wrapper.style = '';
     }
 
     trigger_event(event, args) {
@@ -2610,9 +2610,6 @@ class Gantt {
     hit_test(element1, element2) {
         var rect1 = element1.getBoundingClientRect();
         var rect2 = element2.getBoundingClientRect();
-
-        console.log('rect1', rect1);
-        console.log('rect2', rect2);
 
         var xOverlap = Math.max(
             0,
