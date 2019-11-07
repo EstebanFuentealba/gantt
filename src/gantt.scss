@@ -40,11 +40,18 @@ $handle-color: #ddd !default;
         fill: $light-yellow;
         opacity: 0.5;
     }
-
     .arrow {
         fill: none;
         stroke: $text-muted;
-        stroke-width: 1.4;
+        stroke-width: 1.5;
+        path {
+            &:hover {
+                stroke-width: 3;
+                stroke: orange;
+                cursor: pointer;
+                filter: drop-shadow(0 2px 1px black);
+            }
+        }
     }
 
     .bar {
