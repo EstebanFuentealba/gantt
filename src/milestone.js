@@ -7,6 +7,7 @@ export default class Milestone extends Bar {
         this.set_defaults(gantt, task);
         this.prepare();
         this.draw();
+        this.bind();
     }
 
     set_defaults(gantt, task) {
