@@ -21,8 +21,6 @@
 		}
 	</style>
 	<link rel="stylesheet" href="dist/frappe-gantt.css" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script>
 	<script src="dist/frappe-gantt.js"></script>
 	<style>
 		.gantt-target>div {
@@ -175,8 +173,7 @@
 				id: "Task 5.1",
 				progress: 0,
 				level: 0,
-				type: 'task',
-				dependencies: ['Task 8']
+				type: 'task'
 			},
 			{
 				start: '2019-11-12',
@@ -187,16 +184,17 @@
 				level: 0,
 				type: 'task',
 
-				dependencies: ['Task 2', 'Task 7']
+				dependencies: ['Task 2']
 			},
 			{
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start: '2019-11-15',
+				end: '2019-11-16',
 				name: 'Dev 4',
 				id: "Task 7",
 				progress: 0,
 				level: 0,
 				type: 'task',
+				dependencies: ['Task 8']
 
 			}, {
 				start: '2019-11-12',
@@ -325,6 +323,7 @@
 			view_modes: ['Hour', 'Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
 			language: 'en',
 			header_fixed: true,
+			bar_height: 30,
 			groups: [
 				{
 					id: 'design',
@@ -349,7 +348,7 @@
 			button.addEventListener('click', (e) => {
 				gantt_chart.change_view_mode(button.innerText);
 			}, false)
-		})
+		});
 
 	</script>
 </body>

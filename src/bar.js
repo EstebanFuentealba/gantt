@@ -97,14 +97,14 @@ export default class Bar {
         });
         createSVG('circle', {
             cx: this.x - 8,
-            cy: this.y + 10,
+            cy: this.y + this.gantt.options.bar_height / 2,
             r: 6,
             class: 'circle-link',
             append_to: link_in
         });
         createSVG('circle', {
             cx: this.x - 8,
-            cy: this.y + 10,
+            cy: this.y + this.gantt.options.bar_height / 2,
             r: 6,
             class: 'handle-link link-input',
             append_to: link_in,
@@ -113,14 +113,14 @@ export default class Bar {
 
         createSVG('circle', {
             cx: this.x + this.width + 8,
-            cy: this.y + 10,
+            cy: this.y + this.gantt.options.bar_height / 2,
             r: 6,
             class: 'circle-link',
             append_to: link_out
         });
         createSVG('circle', {
             cx: this.x + this.width + 8,
-            cy: this.y + 10,
+            cy: this.y + this.gantt.options.bar_height / 2,
             r: 6,
             class: 'handle-link link-output',
             append_to: link_out,
