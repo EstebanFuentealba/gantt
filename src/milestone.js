@@ -21,7 +21,7 @@ export default class Milestone extends Bar {
     }
     compute_x() {
         const { step, column_width } = this.gantt.options;
-        const task_start = this.task._start;
+        const task_start = this.task._start_date;
         const gantt_start = this.gantt.gantt_start;
 
         const diff = date_utils.diff(task_start, gantt_start, 'hour');

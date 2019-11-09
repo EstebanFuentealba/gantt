@@ -22,13 +22,17 @@ export default class Bar {
     prepare_values() {
         this.invalid = this.task.invalid;
         this.height = this.gantt.options.bar_height;
+
         this.image_size = this.gantt.options.bar_height - 5;
         this.x = this.compute_x();
         this.y = this.compute_y();
         this.corner_radius = this.gantt.options.bar_corner_radius;
         this.duration =
-            date_utils.diff(this.task._end, this.task._start, 'hour') /
-            this.gantt.options.step;
+            date_utils.diff(
+                this.task._end_date,
+                this.task._start_date,
+                'hour'
+            ) / this.gantt.options.step;
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
             this.gantt.options.column_width *
@@ -128,6 +132,7 @@ export default class Bar {
             task_id: this.task.id
         });
     }
+
     draw_bar() {
         this.$bar = createSVG('rect', {
             x: this.x,
@@ -312,12 +317,12 @@ export default class Bar {
         if (this.gantt.bar_being_dragged) return;
 
         const start_date = date_utils.format(
-            this.task._start,
+            this.task._start_date,
             'MMM D',
             this.gantt.options.language
         );
         const end_date = date_utils.format(
-            date_utils.add(this.task._end, -1, 'second'),
+            date_utils.add(this.task._end_date, -1, 'second'),
             'MMM D',
             this.gantt.options.language
         );
@@ -364,14 +369,14 @@ export default class Bar {
         let changed = false;
         const { new_start_date, new_end_date } = this.compute_start_end_date();
 
-        if (Number(this.task._start) !== Number(new_start_date)) {
+        if (Number(this.task._start_date) !== Number(new_start_date)) {
             changed = true;
-            this.task._start = new_start_date;
+            this.task._start_date = new_start_date;
         }
 
-        if (Number(this.task._end) !== Number(new_end_date)) {
+        if (Number(this.task._end_date) !== Number(new_end_date)) {
             changed = true;
-            this.task._end = new_end_date;
+            this.task._end_date = new_end_date;
         }
 
         if (!changed) return;
@@ -420,7 +425,7 @@ export default class Bar {
 
     compute_x() {
         const { step, column_width } = this.gantt.options;
-        const task_start = this.task._start;
+        const task_start = this.task._start_date;
         const gantt_start = this.gantt.gantt_start;
 
         const diff = date_utils.diff(task_start, gantt_start, 'hour');
@@ -484,24 +489,32 @@ export default class Bar {
 
     update_connector_position() {
         const bar = this.$bar;
-        this.link_group
-            .querySelector('.link-in .circle-link')
-            .setAttribute('cx', bar.getX() - this.gantt.options.padding / 2);
-        this.link_group
-            .querySelector('.link-in .handle-link')
-            .setAttribute('cx', bar.getX() - this.gantt.options.padding / 2);
-        this.link_group
-            .querySelector('.link-out .circle-link')
-            .setAttribute(
-                'cx',
-                bar.getX() + bar.getWidth() + this.gantt.options.padding / 2
-            );
-        this.link_group
-            .querySelector('.link-out .handle-link')
-            .setAttribute(
-                'cx',
-                bar.getX() + bar.getWidth() + this.gantt.options.padding / 2
-            );
+        try {
+            this.link_group
+                .querySelector('.link-in .circle-link')
+                .setAttribute(
+                    'cx',
+                    bar.getX() - this.gantt.options.padding / 2
+                );
+            this.link_group
+                .querySelector('.link-in .handle-link')
+                .setAttribute(
+                    'cx',
+                    bar.getX() - this.gantt.options.padding / 2
+                );
+            this.link_group
+                .querySelector('.link-out .circle-link')
+                .setAttribute(
+                    'cx',
+                    bar.getX() + bar.getWidth() + this.gantt.options.padding / 2
+                );
+            this.link_group
+                .querySelector('.link-out .handle-link')
+                .setAttribute(
+                    'cx',
+                    bar.getX() + bar.getWidth() + this.gantt.options.padding / 2
+                );
+        } catch (error) {}
     }
     update_progressbar_position() {
         this.$bar_progress.setAttribute('x', this.$bar.getX());

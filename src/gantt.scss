@@ -276,3 +276,15 @@ $handle-color: #ddd !default;
         }
     }
 }
+
+.planned {
+    fill: #ddd;
+    mask: url(#mask-stripe);
+    stroke-width: 0.5;
+    stroke: $bar-stroke;
+    stroke-linecap: square;
+    // fill: red;
+    // stroke: #000;
+    // stroke-width: 2px;
+    // opacity: 0.8;
+}

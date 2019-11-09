@@ -180,3 +180,10 @@
     fill: orange; }
   .bar.in-connection .bar-wrapper .link-group .link-out .handle-link:hover {
     fill: orange; }
+
+.planned {
+  fill: #ddd;
+  mask: url(#mask-stripe);
+  stroke-width: 0.5;
+  stroke: #8d99a6;
+  stroke-linecap: square; }

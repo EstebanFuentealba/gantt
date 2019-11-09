@@ -100,8 +100,8 @@
 		};
 		var tasks = [
 			{
-				start: '2019-11-01',
-				end: '2019-11-08',
+				start_date: '2019-11-01',
+				end_date: '2019-11-08',
 				name: 'Redesign website',
 				group_id: "design",
 				id: "Task 0",
@@ -111,8 +111,8 @@
 
 			},
 			{
-				start: '2019-11-03',
-				end: '2019-11-06',
+				start_date: '2019-11-03',
+				end_date: '2019-11-06',
 				name: 'Write new content',
 				id: "Task 1",
 				group_id: "development",
@@ -122,8 +122,8 @@
 				type: 'task'
 			},
 			{
-				start: '2019-11-04',
-				end: '2019-11-08',
+				start_date: '2019-11-04',
+				end_date: '2019-11-08',
 				name: 'Apply new styles',
 				id: "Task 2",
 				group_id: "development",
@@ -134,8 +134,8 @@
 				thumbnail: 'https://mdn.mozillademos.org/files/6457/mdn_logo_only_color.png'
 			},
 			{
-				start: '2019-11-08',
-				end: '2019-11-09',
+				start_date: '2019-11-08',
+				end_date: '2019-11-09',
 				name: 'Review',
 				id: "Task 3",
 				progress: 5,
@@ -144,8 +144,11 @@
 				dependencies: 'Task 2'
 			},
 			{
-				start: '2019-11-08',
-				end: '2019-11-10',
+				start_date: '2019-11-08',
+				end_date: '2019-11-10',
+
+				planned_start: '2019-11-07',
+				planned_end: '2019-11-09',
 				name: 'Deploy',
 				id: "Task 4",
 				progress: 0,
@@ -155,8 +158,8 @@
 				type: 'task'
 			},
 			{
-				start: '2019-11-11',
-				end: '2019-11-11',
+				start_date: '2019-11-11',
+				end_date: '2019-11-11',
 				name: 'Go Live!',
 				id: "Task 5",
 				group_id: "integration",
@@ -167,8 +170,8 @@
 				type: 'task'
 			},
 			{
-				start: '2019-11-23',
-				end: '2019-11-23',
+				start_date: '2019-11-23',
+				end_date: '2019-11-23',
 				name: 'Dev',
 				id: "Task 5.1",
 				progress: 0,
@@ -178,8 +181,8 @@
 				dependencies: ['Task 8']
 			},
 			{
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 2',
 				id: "Task 6",
 				progress: 0,
@@ -189,8 +192,8 @@
 				dependencies: ['Task 2']
 			},
 			{
-				start: '2019-11-15',
-				end: '2019-11-16',
+				start_date: '2019-11-15',
+				end_date: '2019-11-16',
 				name: 'Dev 4',
 				id: "Task 7",
 				progress: 0,
@@ -199,42 +202,45 @@
 				dependencies: ['Task 8']
 
 			}, {
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 2',
 				id: "Task 8",
 				progress: 0,
 				level: 0,
-				type: 'task'
+				type: 'task',
+
+
 			},
 			{
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 4',
 				id: "Task 9",
 				progress: 0,
 				level: 0,
-				type: 'task'
+				type: 'task',
+				dependencies: ['Task 12']
 			}, {
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 2',
 				id: "Task 10",
 				progress: 0,
 				level: 0,
-				type: 'task'
+				type: 'task',
 			},
 			{
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 4',
 				id: "Task 11",
 				progress: 0,
 				level: 0,
 				type: 'task'
 			}, {
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 2',
 				id: "Task 12",
 				progress: 0,
@@ -242,16 +248,16 @@
 				type: 'task'
 			},
 			{
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 4',
 				id: "Task 13",
 				progress: 0,
 				level: 0,
 				type: 'task'
 			}, {
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 2',
 				id: "Task 14",
 				progress: 0,
@@ -259,16 +265,16 @@
 				type: 'task'
 			},
 			{
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 4',
 				id: "Task 15",
 				progress: 0,
 				level: 0,
 				type: 'task'
 			}, {
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 2',
 				id: "Task 16",
 				progress: 0,
@@ -276,16 +282,16 @@
 				type: 'task'
 			},
 			{
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 4',
 				id: "Task 17",
 				progress: 0,
 				level: 0,
 				type: 'task'
 			}, {
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 2',
 				id: "Task 18",
 				progress: 0,
@@ -293,8 +299,8 @@
 				type: 'task'
 			},
 			{
-				start: '2019-11-12',
-				end: '2019-11-13',
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
 				name: 'Dev 4',
 				id: "Task 19",
 				progress: 0,
@@ -324,7 +330,7 @@
 			arrow_curve: 0,
 			view_modes: ['Hour', 'Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
 			language: 'en',
-			header_fixed: true,
+			// header_fixed: true,
 			bar_height: 30,
 			groups: [
 				{

@@ -1,6 +1,7 @@
 import date_utils from './date_utils';
 import { $, createSVG } from './svg_utils';
 import Bar from './bar';
+import BarPlanned from './bar_planned';
 import ArrowRect from './arrow_rect';
 import Arrow from './arrow';
 import Popup from './popup';
@@ -80,7 +81,6 @@ export default class Gantt {
         const parent_element = this.$svg.parentElement;
         parent_element.appendChild(this.$container);
         this.$container.appendChild(this.$svg);
-
         // popup wrapper
         this.popup_wrapper = document.createElement('div');
         this.popup_wrapper.classList.add('popup-wrapper');
@@ -125,41 +125,54 @@ export default class Gantt {
         // prepare tasks
         this.tasks = tasks.map((task, i) => {
             // convert to Date objects
-            task._start = date_utils.parse(task.start);
-            task._end = date_utils.parse(task.end);
+            task._start_date = date_utils.parse(task.start_date);
+            task._end_date = date_utils.parse(task.end_date);
+            if (task.planned_start && task.planned_end) {
+                task._planned_start = date_utils.parse(task.planned_start);
+                task._planned_end = date_utils.parse(task.planned_end);
+            }
 
             // make task invalid if duration too large
-            if (date_utils.diff(task._end, task._start, 'year') > 10) {
-                task.end = null;
+            if (
+                date_utils.diff(task._end_date, task._start_date, 'year') > 10
+            ) {
+                task.end_date = null;
+            }
+
+            if (
+                date_utils.diff(task._planned_end, task._start_date, 'year') >
+                10
+            ) {
+                task.planned_end = null;
             }
 
             // cache index
             task._index = i;
 
             // invalid dates
-            if (!task.start && !task.end) {
+            if (!task.start_date && !task.end_date) {
                 const today = date_utils.today();
-                task._start = today;
-                task._end = date_utils.add(today, 2, 'day');
+                task._start_date = today;
+                task._end_date = date_utils.add(today, 2, 'day');
             }
 
-            if (!task.start && task.end) {
-                task._start = date_utils.add(task._end, -2, 'day');
+            if (!task.start_date && task.end_date) {
+                task._start_date = date_utils.add(task._end_date, -2, 'day');
             }
 
-            if (task.start && !task.end) {
-                task._end = date_utils.add(task._start, 2, 'day');
+            if (task.start_date && !task.end_date) {
+                task._end_date = date_utils.add(task._start_date, 2, 'day');
             }
 
             // if hours is not set, assume the last day is full day
             // e.g: 2018-09-09 becomes 2018-09-09 23:59:59
-            const task_end_values = date_utils.get_date_values(task._end);
+            const task_end_values = date_utils.get_date_values(task._end_date);
             if (task_end_values.slice(3).every(d => d === 0)) {
-                task._end = date_utils.add(task._end, 24, 'hour');
+                task._end_date = date_utils.add(task._end_date, 24, 'hour');
             }
 
             // invalid flag
-            if (!task.start || !task.end) {
+            if (!task.start_date || !task.end_date) {
                 task.invalid = true;
             }
 
@@ -253,11 +266,11 @@ export default class Gantt {
 
         for (let task of this.tasks) {
             // set global start and end date
-            if (!this.gantt_start || task._start < this.gantt_start) {
-                this.gantt_start = task._start;
+            if (!this.gantt_start || task._start_date < this.gantt_start) {
+                this.gantt_start = task._start_date;
             }
-            if (!this.gantt_end || task._end > this.gantt_end) {
-                this.gantt_end = task._end;
+            if (!this.gantt_end || task._end_date > this.gantt_end) {
+                this.gantt_end = task._end_date;
             }
         }
 
@@ -311,6 +324,8 @@ export default class Gantt {
 
     render() {
         this.clear();
+
+        this.make_planned();
         this.setup_layers();
         this.make_grid();
         this.make_dates();
@@ -321,10 +336,44 @@ export default class Gantt {
         this.set_scroll_position();
     }
 
+    make_planned() {
+        let defs = createSVG('defs', {
+            append_to: this.$svg
+        });
+        let pattern = createSVG('pattern', {
+            id: 'pattern-stripe',
+            width: 4,
+            height: 4,
+            patternUnits: 'userSpaceOnUse',
+            patternTransform: 'rotate(45)',
+            append_to: defs
+        });
+        createSVG('rect', {
+            id: 'pattern-stripe',
+            width: 2,
+            height: 4,
+            transform: 'translate(0,0)',
+            fill: 'white',
+            append_to: pattern
+        });
+        let mask = createSVG('mask', {
+            id: 'mask-stripe',
+            append_to: defs
+        });
+        createSVG('rect', {
+            x: 0,
+            y: 0,
+            width: '100%',
+            height: '100%',
+            fill: 'url(#pattern-stripe)',
+            append_to: mask
+        });
+    }
     setup_layers() {
         this.layers = {};
         const layers = [
             'grid',
+            'planned',
             'arrow',
             'progress',
             'bar',
@@ -627,7 +676,13 @@ export default class Gantt {
         this.bars = this.tasks.map(task => {
             if (task.type === 'task') {
                 const bar = new Bar(this, task);
+
                 this.layers.bar.appendChild(bar.group);
+                if (task.planned_start && task.planned_end) {
+                    const bar_planned = new BarPlanned(this, task);
+                    this.layers.planned.appendChild(bar_planned.group);
+                }
+
                 this.bar_map[task.id] = bar;
                 return bar;
             } else if (task.type === 'milestone') {
@@ -804,61 +859,78 @@ export default class Gantt {
             '.bar-wrapper, .handle, .handle-link',
             (e, element) => {
                 e.preventDefault();
-                const bar_wrapper = $.closest('.bar-wrapper', element);
-                task_id = bar_wrapper.getAttribute('data-id');
+                try {
+                    const bar_wrapper = $.closest('.bar-wrapper', element);
+                    task_id = bar_wrapper.getAttribute('data-id');
 
-                x_on_start = e.offsetX;
-                y_on_start = e.offsetY;
+                    x_on_start = e.offsetX;
+                    y_on_start = e.offsetY;
 
-                if (element.classList.contains('handle-link')) {
-                    this.get_bar(task_id).stop_click_event();
-                    is_linking = true;
-                    is_input_link = !element.classList.contains('link-output');
+                    if (element.classList.contains('handle-link')) {
+                        this.get_bar(task_id).stop_click_event();
+                        is_linking = true;
+                        is_input_link = !element.classList.contains(
+                            'link-output'
+                        );
 
-                    //  handle-dependency
-                    const $link_wrapper = $.closest('.link-connector', element);
-                    const link = $link_wrapper.querySelector('.handle-link');
-                    const circle = $link_wrapper.querySelector('.circle-link');
+                        //  handle-dependency
+                        const $link_wrapper = $.closest(
+                            '.link-connector',
+                            element
+                        );
+                        const link = $link_wrapper.querySelector(
+                            '.handle-link'
+                        );
+                        const circle = $link_wrapper.querySelector(
+                            '.circle-link'
+                        );
 
-                    connector_from = $link_wrapper;
-                    dependency_from = circle;
-                    dependency_from_linking = link;
+                        connector_from = $link_wrapper;
+                        dependency_from = circle;
+                        dependency_from_linking = link;
 
-                    x_on_start = +circle.getAttribute('cx');
-                    y_on_start = +circle.getAttribute('cy');
-                    radius = +circle.getAttribute('r');
+                        x_on_start = +circle.getAttribute('cx');
+                        y_on_start = +circle.getAttribute('cy');
+                        radius = +circle.getAttribute('r');
 
-                    link_path.setAttribute('x1', x_on_start);
-                    link_path.setAttribute('y1', y_on_start);
-                    connector_from.classList.add('connector');
-                    this.layers.bar.classList.add('in-connection');
-                } else {
-                    if (element.classList.contains('left')) {
-                        is_resizing_left = true;
-                    } else if (element.classList.contains('right')) {
-                        is_resizing_right = true;
-                    } else if (element.classList.contains('bar-wrapper')) {
-                        is_dragging = true;
+                        link_path.setAttribute('x1', x_on_start);
+                        link_path.setAttribute('y1', y_on_start);
+                        connector_from.classList.add('connector');
+                        this.layers.bar.classList.add('in-connection');
+
+                        //  fix before elements connect
+                        // try {
+                        //     const bar = e.target.closest('.bar');
+                        //     bar.insertBefore(connector_from, bar.firstChild);
+                        // } catch (error) {}
+                    } else {
+                        if (element.classList.contains('left')) {
+                            is_resizing_left = true;
+                        } else if (element.classList.contains('right')) {
+                            is_resizing_right = true;
+                        } else if (element.classList.contains('bar-wrapper')) {
+                            is_dragging = true;
+                        }
+
+                        bar_wrapper.classList.add('active');
+                        parent_bar_id = bar_wrapper.getAttribute('data-id');
+                        const ids = [
+                            parent_bar_id,
+                            ...this.get_all_dependent_tasks(parent_bar_id)
+                        ];
+                        bars = ids.map(id => this.get_bar(id));
+
+                        this.bar_being_dragged = parent_bar_id;
+
+                        bars.forEach(bar => {
+                            const $bar = bar.$bar;
+                            $bar.ox = $bar.getX();
+                            $bar.oy = $bar.getY();
+                            $bar.owidth = $bar.getWidth();
+                            $bar.finaldx = 0;
+                        });
                     }
-
-                    bar_wrapper.classList.add('active');
-                    parent_bar_id = bar_wrapper.getAttribute('data-id');
-                    const ids = [
-                        parent_bar_id,
-                        ...this.get_all_dependent_tasks(parent_bar_id)
-                    ];
-                    bars = ids.map(id => this.get_bar(id));
-
-                    this.bar_being_dragged = parent_bar_id;
-
-                    bars.forEach(bar => {
-                        const $bar = bar.$bar;
-                        $bar.ox = $bar.getX();
-                        $bar.oy = $bar.getY();
-                        $bar.owidth = $bar.getWidth();
-                        $bar.finaldx = 0;
-                    });
-                }
+                } catch (error) {}
             }
         );
 
@@ -1134,7 +1206,7 @@ export default class Gantt {
      */
     get_oldest_starting_date() {
         return this.tasks
-            .map(task => task._start)
+            .map(task => task._start_date)
             .reduce(
                 (prev_date, cur_date) =>
                     cur_date <= prev_date ? cur_date : prev_date
