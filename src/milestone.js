@@ -69,11 +69,15 @@ export default class Milestone extends Bar {
         this.$bar.setAttribute('x', this.$bar.getX());
         this.$bar.setAttribute(
             'd',
-            `M${this.$bar.getX() + 10},${this.y + 2} 
-            l -10,10 
-            l 10,10
-            l 10,-10
-            l -10,-10`
+            `M${this.$bar.getX() + this.gantt.options.padding},${this.y} 
+            l -${this.gantt.options.bar_height / 2},${this.gantt.options
+                .bar_height / 2} 
+            l ${this.gantt.options.bar_height / 2},${this.gantt.options
+                .bar_height / 2}
+            l ${this.gantt.options.bar_height / 2},-${this.gantt.options
+                .bar_height / 2}
+            l -${this.gantt.options.bar_height / 2},-${this.gantt.options
+                .bar_height / 2}`
         );
     }
     draw_label() {
@@ -91,13 +95,17 @@ export default class Milestone extends Bar {
         this.$bar = createSVG('path', {
             x: this.x,
             y: this.y,
-            width: 20,
-            height: 20,
-            d: `M${this.x + 10},${this.y + 2} 
-            l -10,10 
-            l 10,10
-            l 10,-10
-            l -10,-10`,
+            width: this.gantt.options.padding * 2,
+            height: this.gantt.options.padding * 2,
+            d: `M${this.x + this.gantt.options.padding},${this.y} 
+            l -${this.gantt.options.bar_height / 2},${this.gantt.options
+                .bar_height / 2} 
+            l ${this.gantt.options.bar_height / 2},${this.gantt.options
+                .bar_height / 2}
+            l ${this.gantt.options.bar_height / 2},-${this.gantt.options
+                .bar_height / 2}
+            l -${this.gantt.options.bar_height / 2},-${this.gantt.options
+                .bar_height / 2}`,
             class: 'milestone',
             append_to: this.bar_group
         });

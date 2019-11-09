@@ -85,6 +85,7 @@ export default class Bar {
         }
     }
     draw_connector() {
+        const bar = this.$bar;
         const link_in = createSVG('g', {
             class: 'link-connector link-in',
             'task-id': this.task.id,
@@ -96,14 +97,14 @@ export default class Bar {
             append_to: this.link_group
         });
         createSVG('circle', {
-            cx: this.x - 8,
+            cx: bar.getX() - this.gantt.options.padding / 2,
             cy: this.y + this.gantt.options.bar_height / 2,
             r: 6,
             class: 'circle-link',
             append_to: link_in
         });
         createSVG('circle', {
-            cx: this.x - 8,
+            cx: bar.getX() - this.gantt.options.padding / 2,
             cy: this.y + this.gantt.options.bar_height / 2,
             r: 6,
             class: 'handle-link link-input',
@@ -112,14 +113,14 @@ export default class Bar {
         });
 
         createSVG('circle', {
-            cx: this.x + this.width + 8,
+            cx: bar.getX() + bar.getWidth() + this.gantt.options.padding / 2,
             cy: this.y + this.gantt.options.bar_height / 2,
             r: 6,
             class: 'circle-link',
             append_to: link_out
         });
         createSVG('circle', {
-            cx: this.x + this.width + 8,
+            cx: bar.getX() + bar.getWidth() + this.gantt.options.padding / 2,
             cy: this.y + this.gantt.options.bar_height / 2,
             r: 6,
             class: 'handle-link link-output',
@@ -485,16 +486,22 @@ export default class Bar {
         const bar = this.$bar;
         this.link_group
             .querySelector('.link-in .circle-link')
-            .setAttribute('cx', bar.getX() - 8);
+            .setAttribute('cx', bar.getX() - this.gantt.options.padding / 2);
         this.link_group
             .querySelector('.link-in .handle-link')
-            .setAttribute('cx', bar.getX() - 8);
+            .setAttribute('cx', bar.getX() - this.gantt.options.padding / 2);
         this.link_group
             .querySelector('.link-out .circle-link')
-            .setAttribute('cx', bar.getX() + bar.getWidth() + 8);
+            .setAttribute(
+                'cx',
+                bar.getX() + bar.getWidth() + this.gantt.options.padding / 2
+            );
         this.link_group
             .querySelector('.link-out .handle-link')
-            .setAttribute('cx', bar.getX() + bar.getWidth() + 8);
+            .setAttribute(
+                'cx',
+                bar.getX() + bar.getWidth() + this.gantt.options.padding / 2
+            );
     }
     update_progressbar_position() {
         this.$bar_progress.setAttribute('x', this.$bar.getX());
