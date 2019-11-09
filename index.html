@@ -308,6 +308,19 @@
 				type: 'task'
 			},
 		]
+		var foo = new Array(1000);
+		for (var i = 0; i < foo.length; i++) {
+			tasks.push({
+				start_date: '2019-11-12',
+				end_date: '2019-11-13',
+				name: 'Dev 2',
+				id: "Task.." + i,
+				progress: 0,
+				level: 0,
+				type: 'task',
+
+			})
+		}
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
 			on_click: function (task) {
 				console.log(task);
