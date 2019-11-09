@@ -241,9 +241,9 @@ export default class ArrowRect extends Arrow {
                                     this.gantt.options.padding / 2 -
                                     connector_horizontal},${start_y -
                         connector_vertical}
-                                l 0,-${connector_vertical *
-                                    this.to_task.task._index -
-                                    heightBar / 2}
+                                l 0,-${heightCurrentBar -
+                                    this.gantt.options.padding / 2 -
+                                    this.gantt.options.bar_height / 2}
                                 l ${connector_horizontal},0
                                 l ${circle_radius / 2},0
                                 m -5 -5
