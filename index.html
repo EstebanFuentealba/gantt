@@ -318,6 +318,7 @@
 				progress: 0,
 				level: 0,
 				type: 'task',
+				dependencies: i > 0 ? ['Task..' + (i - 1)] : []
 
 			})
 		}
