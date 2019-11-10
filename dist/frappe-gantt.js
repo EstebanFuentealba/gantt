@@ -726,6 +726,10 @@ class Bar {
         this.group.classList.toggle('active');
         this.show_popup();
     }
+    on_context_menu(e) {
+        e.preventDefault();
+        this.gantt.trigger_event('contextmenu', [e, this.task, this.group]);
+    }
     setup_click_event() {
         $.on(this.group, 'focus', this.on_click_event.bind(this));
         $.on(
@@ -733,6 +737,7 @@ class Bar {
             this.gantt.options.popup_trigger,
             this.on_click_event.bind(this)
         );
+        $.on(this.bar_group, 'contextmenu', this.on_context_menu.bind(this));
     }
     stop_click_event() {
         $.off(this.group, 'focus', this.on_click_event.bind(this));
@@ -741,6 +746,7 @@ class Bar {
             this.gantt.options.popup_trigger,
             this.on_click_event.bind(this)
         );
+        $.off(this.bar_group, 'contextmenu', this.on_context_menu.bind(this));
     }
 
     show_popup() {
@@ -1078,6 +1084,7 @@ class Arrow {
 
         this.calculate_path();
         this.draw();
+        this.bind();
     }
 
     calculate_path() {
@@ -1169,12 +1176,33 @@ class Arrow {
             }
         }
     }
-
+    bind() {
+        this.setup_click_event();
+    }
+    on_context_menu(e) {
+        e.preventDefault();
+        this.gantt.trigger_event('contextmenu', [
+            e,
+            this.from_task,
+            this.to_task,
+            this.group
+        ]);
+    }
+    setup_click_event() {
+        $.on(this.group, 'contextmenu', this.on_context_menu.bind(this));
+    }
+    stop_click_event() {
+        $.off(this.group, 'contextmenu', this.on_context_menu.bind(this));
+    }
     draw() {
+        this.group = createSVG('g', {
+            class: 'link-wrapper'
+        });
         this.element = createSVG('path', {
             d: this.path,
             'data-from': this.from_task.task.id,
-            'data-to': this.to_task.task.id
+            'data-to': this.to_task.task.id,
+            append_to: this.group
         });
     }
 
@@ -2074,8 +2102,11 @@ class Gantt {
             }
 
             if (
-                date_utils.diff(task._planned_end, task._start_date, 'year') >
-                10
+                date_utils.diff(
+                    task._planned_end,
+                    task._planned_start,
+                    'year'
+                ) > 10
             ) {
                 task.planned_end = null;
             }
@@ -2339,7 +2370,6 @@ class Gantt {
             this.options.padding +
             (this.options.bar_height + this.options.padding) *
                 this.tasks.length;
-
         createSVG('rect', {
             x: 0,
             y: 0,
@@ -2661,7 +2691,7 @@ class Gantt {
                         this.get_bar(dependency.id), // from_task
                         this.get_bar(task.id) // to_task
                     );
-                    this.layers.arrow.appendChild(arrow.element);
+                    this.layers.arrow.appendChild(arrow.group);
                     return arrow;
                 })
                 .filter(Boolean); // filter falsy values

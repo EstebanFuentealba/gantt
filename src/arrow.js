@@ -1,4 +1,4 @@
-import { createSVG } from './svg_utils';
+import { $, createSVG } from './svg_utils';
 
 export default class Arrow {
     constructor(gantt, from_task, to_task) {
@@ -8,6 +8,7 @@ export default class Arrow {
 
         this.calculate_path();
         this.draw();
+        this.bind();
     }
 
     calculate_path() {
@@ -99,12 +100,33 @@ export default class Arrow {
             }
         }
     }
-
+    bind() {
+        this.setup_click_event();
+    }
+    on_context_menu(e) {
+        e.preventDefault();
+        this.gantt.trigger_event('contextmenu', [
+            e,
+            this.from_task,
+            this.to_task,
+            this.group
+        ]);
+    }
+    setup_click_event() {
+        $.on(this.group, 'contextmenu', this.on_context_menu.bind(this));
+    }
+    stop_click_event() {
+        $.off(this.group, 'contextmenu', this.on_context_menu.bind(this));
+    }
     draw() {
+        this.group = createSVG('g', {
+            class: 'link-wrapper'
+        });
         this.element = createSVG('path', {
             d: this.path,
             'data-from': this.from_task.task.id,
-            'data-to': this.to_task.task.id
+            'data-to': this.to_task.task.id,
+            append_to: this.group
         });
     }
 

@@ -341,6 +341,9 @@
 			on_dependency_removed: function (link) {
 				console.log("removed dependency from: ", link);
 			},
+			on_contextmenu: function (event, task, bar) {
+				console.log('contextmenu', event, task, bar)
+			},
 			arrow_curve: 0,
 			view_modes: ['Hour', 'Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
 			language: 'en',

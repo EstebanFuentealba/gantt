@@ -140,8 +140,11 @@ export default class Gantt {
             }
 
             if (
-                date_utils.diff(task._planned_end, task._start_date, 'year') >
-                10
+                date_utils.diff(
+                    task._planned_end,
+                    task._planned_start,
+                    'year'
+                ) > 10
             ) {
                 task.planned_end = null;
             }
@@ -405,7 +408,6 @@ export default class Gantt {
             this.options.padding +
             (this.options.bar_height + this.options.padding) *
                 this.tasks.length;
-
         createSVG('rect', {
             x: 0,
             y: 0,
@@ -727,7 +729,7 @@ export default class Gantt {
                         this.get_bar(dependency.id), // from_task
                         this.get_bar(task.id) // to_task
                     );
-                    this.layers.arrow.appendChild(arrow.element);
+                    this.layers.arrow.appendChild(arrow.group);
                     return arrow;
                 })
                 .filter(Boolean); // filter falsy values
