@@ -109,7 +109,7 @@ export default class Arrow {
             e,
             this.from_task,
             this.to_task,
-            this.group
+            this
         ]);
     }
     setup_click_event() {

@@ -728,11 +728,7 @@ class Bar {
     }
     on_context_menu(e) {
         e.preventDefault();
-        this.gantt.trigger_event('contextmenu_task', [
-            e,
-            this.task,
-            this.group
-        ]);
+        this.gantt.trigger_event('contextmenu_task', [e, this.task, this]);
     }
     setup_click_event() {
         $.on(this.group, 'focus', this.on_click_event.bind(this));
@@ -1189,7 +1185,7 @@ class Arrow {
             e,
             this.from_task,
             this.to_task,
-            this.group
+            this
         ]);
     }
     setup_click_event() {

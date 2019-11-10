@@ -298,11 +298,7 @@ export default class Bar {
     }
     on_context_menu(e) {
         e.preventDefault();
-        this.gantt.trigger_event('contextmenu_task', [
-            e,
-            this.task,
-            this.group
-        ]);
+        this.gantt.trigger_event('contextmenu_task', [e, this.task, this]);
     }
     setup_click_event() {
         $.on(this.group, 'focus', this.on_click_event.bind(this));
