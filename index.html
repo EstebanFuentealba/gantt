@@ -341,17 +341,8 @@
 			on_dependency_removed: function (link) {
 				console.log("removed dependency from: ", link);
 			},
-			on_contextmenu_task: function (event, task, instance) {
-				console.log('contextmenu', event, task, instance)
-			},
-			on_contextmenu_link: function (event,
-				from_task,
-				to_task,
-				instance) {
-				console.log('contextmenu', event,
-					from_task,
-					to_task,
-					instance)
+			contextmenu: function (event, type, task, instance) {
+				console.log('contextmenu', type, event, task, instance)
 			},
 			arrow_curve: 0,
 			view_modes: ['Hour', 'Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],

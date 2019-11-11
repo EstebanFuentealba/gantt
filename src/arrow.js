@@ -105,10 +105,10 @@ export default class Arrow {
     }
     on_context_menu(e) {
         e.preventDefault();
-        this.gantt.trigger_event('contextmenu_link', [
+        this.gantt.trigger_event('contextmenu', [
             e,
-            this.from_task,
-            this.to_task,
+            'link',
+            [this.from_task, this.to_task],
             this
         ]);
     }
