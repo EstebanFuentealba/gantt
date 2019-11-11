@@ -2721,7 +2721,7 @@ class Gantt {
         ]);
         this.get_bar(to_id).arrows = this.get_bar(to_id).arrows.concat([arrow]);
 
-        this.layers.arrow.appendChild(arrow.element);
+        this.layers.arrow.appendChild(arrow.group);
         this.arrows = this.arrows.concat([arrow]);
 
         //  send event
