@@ -812,6 +812,10 @@ export default class Gantt {
         parent_element.scrollLeft = scroll_pos;
     }
 
+    on_context_menu(e) {
+        e.preventDefault();
+        this.trigger_event('contextmenu', [e, 'grid', [], this]);
+    }
     bind_grid_click() {
         $.on(
             this.$svg,
@@ -821,6 +825,11 @@ export default class Gantt {
                 this.unselect_all();
                 this.hide_popup();
             }
+        );
+        $.on(
+            this.layers['grid'],
+            'contextmenu',
+            this.on_context_menu.bind(this)
         );
     }
 
